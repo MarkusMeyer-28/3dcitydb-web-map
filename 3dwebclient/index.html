@@ -223,10 +223,10 @@
             border-radius: 5px;
             padding: 5px;
             position: absolute;
-            left: 450px;
+            left: 44%;
             font-family: "Arial";
             z-index: 99980;
-            width: 230px;
+            width: 12%;
         }
 
 
@@ -234,12 +234,16 @@
         #urlInput {
             padding-top: 10px;
             padding-left: 5px;
-            width: 220px;
+            padding-bottom: 10px;
+            width: 98%;
             background: rgba(42, 42, 42, 0.5);
             color: rgb(255, 255, 255);
             border: 3px #505050 solid;
             font-size: 9pt;
 
+        }
+        #urlCKAN {
+            width: 80%;
         }
     </style>
 </head>
@@ -635,16 +639,17 @@
 
     </div>
     <div id="CKAN_UI">
+
         <div>
             <button type="button" style="width: 100%;" class="cesium-button" onclick="getDatasets()">Get CKAN
                 Data</button>
         </div>
 
         <div id="urlInput">
-            <label for="urlCKAN">URL: </label>
-
-            <input id="urlCKAN" type="url" name="URL" align="right" value="https://catalog.gis.lrg.tum.de" /><br></br>
-
+            <label>URL: </label>
+            
+            <input id="urlCKAN" type="text" data-bind="value: url"  value="https://catalog.gis.lrg.tum.de">
+            
         </div>
 
     </div>
