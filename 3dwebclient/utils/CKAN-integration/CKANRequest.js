@@ -1,89 +1,248 @@
-//const getBtn = document.getElementById('ckan_get_btn');
-//const url = 'https://catalog.gis.lrg.tum.de/dataset?q=&sort=score+desc%2C+metadata_modified+desc&ext_bbox=10.079956054687502%2C48.60113322190171%2C12.661743164062502%2C49.60092047614837&ext_prev_extent=9.777832031250002%2C48.378145469762444%2C12.974853515625002%2C49.816720843571765';
-//const url ='https://catalog.gis.lrg.tum.de/dataset?sort=score+desc%2C+metadata_modified+desc&ext_bbox=10.079956054687502%2C48.60113322190171%2C12.661743164062502%2C49.60092047614837&ext_prev_extent=9.777832031250002%2C48.378145469762444%2C12.974853515625002%2C49.816720843571765&q=&organization=bayerische-vermessungsverwaltung'
+var CKANRequest = /** @class */ (function () {
+    function CKANRequest() {
+        
+    }
+    CKANRequest.prototype.getDatasets = async function () {
+        //const request = new XMLHttpRequest();
+        var cam = cesiumCamera;
+        var camPos = cam.positionCartographic;
+        var view = cam.computeViewRectangle(Cesium.Ellipsoid.WGS84);
+        west=view.west * 180 / Cesium.Math.PI;
+        east=view.east * 180 / Cesium.Math.PI;
+        north=view.north * 180 / Cesium.Math.PI;
+        south=view.south * 180 / Cesium.Math.PI;
+        var url = document.getElementById('urlCKAN').value;
+        var packageUrl = url + "/api/3/action/package_search?ext_bbox="+west+"%2C"+south+"%2C"+east+"%2C"+north;
+        //console.log(packageUrl);
+        var results = [];
+        var groups;
+
+        CKANRequest.prototype.sendHttpRequest('GET', packageUrl).then(function (responseData) {
+            //result= parseResponse(responseData);
+            //console.log(responseData.result.results);
+            for (var index = 0; index < responseData.result.results.length; index++) {
+                var tempUrl = url + "/api/3/action/package_show?id=" + responseData.result.results[index].id;
+                var tempResponseData = responseData;
+                //console.log(tempUrl);
+                CKANRequest.prototype.sendHttpRequest('GET', tempUrl).then(async function (responseData) {
+                    //console.log(responseData.result);
+
+                    results.push(responseData.result);
+                    //console.log(tempResponseData.result.results.length);
+                    //console.log(results.length);
+                    if (results.length === tempResponseData.result.results.length) {
+                        //console.log(results);
+                        //console.log(url);
+
+                        groups = await CKANRequest.prototype.getMainGroups(url);
+
+                        function setGroups() {
+                            if (groups != undefined) {
+                                if (groups.length == 0) {
+                                    setTimeout(setGroups, 1000);
+                                } else {
+                                    //console.log(groups.length);
+                                    //var x = document.getElementById("CKAN_Results");
+                                    //console.log("loop")
+                                    //var text = "<dl>";
+                                    
+                                    var mainGroupArray=[];
+                                    for (let i = 0; i < groups.length; i++) {
+                                        var tempDatasetArr=[];
+                                        //text = text + "<dt>" + groups[i] + "</dt>";
+                                        for (let j = 0; j < results.length; j++) {
+                                            //console.log(results[j]);
+                                            for (let k = 0; k < results[j].groups.length; k++) {
+                                                if (results[j].groups[k].display_name === groups[i]) {
+                                                    //text = text + "<dd>" + results[j].title + "</dd>";
+                                                    tempDatasetArr.push(results[j]);
+                                                }
+
+                                            }
+
+                                        }
+                                        var tempGr= new MainGroup(groups[i], tempDatasetArr);
+                                        mainGroupArray.push(tempGr);
+                                    }
+                                    console.log(mainGroupArray);
+                                    //text = text + "</dl>";
+
+                                    //x.innerHTML = text;
+                                    //x.style.display = "block";
+                                }
+                            } else {
+                                setTimeout(setGroups, 1000);
+                            }
+                        }
+                        setGroups();
 
 
+                    }
 
 
-const getDatasets = function () {
-    const cam = cesiumCamera;
-    const camPos = cesiumCamera.positionCartographic;
-    const view = cam.computeViewRectangle(Cesium.Ellipsoid.WGS84);
+                });
 
-    const url = document.getElementById('urlCKAN').value;
-    // const packageUrl=url+"/api/3/action/current_package_list_with_resources";
-    const packageUrl = url + "/api/3/action/package_list";
-
-    sendHttpRequest('GET', packageUrl).then(responseData => {
-
-        //result= parseResponse(responseData);
-        //console.log(responseData.result);
-        for (let index = 0; index < responseData.result.length; index++) {
-            const tempUrl = url + "/api/3/action/package_show?id=" + responseData.result[index];
-
-            sendHttpRequest('GET', tempUrl).then(responseData => {
-
-                //console.log(responseData.result);
-            });
-        }
-    });
-    //console.log(camPos);
-    console.log(view);
-    /*const dataPoint = { longitude: view.west * 180 / Cesium.Math.PI, latitude: view.north * 180 / Cesium.Math.PI, height: 0 };
-    console.log(dataPoint);
-    const pointEntity = cesiumViewer.entities.add({
-        description: `First data point at (${dataPoint.longitude}, ${dataPoint.latitude})`,
-        position: Cesium.Cartesian3.fromDegrees(dataPoint.longitude, dataPoint.latitude, dataPoint.height),
-        point: { pixelSize: 10, color: Cesium.Color.RED }
-    });
-*/
-
-
-
-
-
-};
-const sendHttpRequest = (method, url, data) => {
-    const promise = new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open(method, url);
-
-        xhr.responseType = 'json';
-
-        if (data) {
-            xhr.setRequestHeader('Content-Type', 'application/json');
-        }
-
-        xhr.onload = () => {
-            if (xhr.status >= 400) {
-                reject(xhr.response);
-            } else {
-                resolve(xhr.response);
             }
-        };
 
-        xhr.onerror = () => {
-            reject('Something went wrong!');
-        };
+        });
 
-        xhr.send(JSON.stringify(data));
-    });
-    return promise;
-};
-const parseResponse = (data) => {
-    //parser = new DOMParser();
-    console.log(data);
-    const object = JSON.parse(data);
-    result = object.result;
-    //result=result.resolve;
-    console.log(result);
-
-    return result;
-
-    // document.getElementById('txt').innerHTML= title[5];
-};
+        //console.log(results.length);
 
 
-//getBtn.addEventListener('click', getDatasets);
 
 
+        //console.log(view);
+        /*
+        const dataPointNW = { longitude: view.west * 180 / Cesium.Math.PI, latitude: view.north * 180 / Cesium.Math.PI, height: 0 };
+        //console.log(dataPointNW);
+        const pointEntityNW = cesiumViewer.entities.add({
+            description: `NW`,
+            position: Cesium.Cartesian3.fromDegrees(dataPointNW.longitude, dataPointNW.latitude, dataPointNW.height),
+            point: { pixelSize: 20, color: Cesium.Color.RED }
+        });
+        const dataPointNE = { longitude: view.east * 180 / Cesium.Math.PI, latitude: view.north * 180 / Cesium.Math.PI, height: 0 };
+        //console.log(dataPointNW);
+        const pointEntityNE = cesiumViewer.entities.add({
+            description: `NE`,
+            position: Cesium.Cartesian3.fromDegrees(dataPointNE.longitude, dataPointNE.latitude, dataPointNE.height),
+            point: { pixelSize: 20, color: Cesium.Color.RED }
+        });
+        const dataPointSW = { longitude: view.west * 180 / Cesium.Math.PI, latitude: view.south * 180 / Cesium.Math.PI, height: 0 };
+        //console.log(dataPointNW);
+        const pointEntitySW = cesiumViewer.entities.add({
+            description: `SW`,
+            position: Cesium.Cartesian3.fromDegrees(dataPointSW.longitude, dataPointSW.latitude, dataPointSW.height),
+            point: { pixelSize: 20, color: Cesium.Color.RED }
+        });
+        const dataPointSE = { longitude: view.east * 180 / Cesium.Math.PI, latitude: view.south * 180 / Cesium.Math.PI, height: 0 };
+        //console.log(dataPointNW);
+        const pointEntitySE = cesiumViewer.entities.add({
+            description: `SE`,
+            position: Cesium.Cartesian3.fromDegrees(dataPointSE.longitude, dataPointSE.latitude, dataPointSE.height),
+            point: { pixelSize: 20, color: Cesium.Color.RED }
+        });
+        const p1= cesiumViewer.entities.add({
+            polyline: {
+                positions: Cesium.Cartesian3.fromDegreesArray([
+                    dataPointNW.longitude,
+                    dataPointNW.latitude,
+                    dataPointNE.longitude,
+                    dataPointNE.latitude,
+                    dataPointSE.longitude,
+                    dataPointSE.latitude,
+                    dataPointSW.longitude,
+                    dataPointSW.latitude,
+                    dataPointNW.longitude,
+                    dataPointNW.latitude,
+                ]),
+                width: 6,
+                material: Cesium.Color.RED,
+                clampToGround: true,
+            },
+        });
+        */
+
+    };
+    CKANRequest.prototype.getMainGroups = async function (url) {
+        var groups = [];
+        var mainGroups = [];
+        var count = 0;
+        var l = 100;
+        //console.log(url);
+        var groupListURL = url + "/api/3/action/group_list";
+        //console.log(groupListURL);
+        await CKANRequest.prototype.sendHttpRequest('GET', groupListURL).then(function (responseData) {
+            var result = responseData.result;
+            l = result.length;
+            for (let index = 0; index < result.length; index++) {
+                groups[groups.length] = result[index];
+                var tempGroupURL = url + "/api/3/action/group_show?id=" + result[index];
+                //console.log(tempGroupURL);
+
+                CKANRequest.prototype.sendHttpRequest('GET', tempGroupURL).then(function (response) {
+                    count++;
+                    //console.log(result.length);
+                    if (response.result.groups[0] != undefined) {
+                        if (response.result.groups[0].name === "main-categories") {
+                            mainGroups.push(response.result.display_name);
+
+                        }
+
+                    }
+                    if (count == l) {
+                        //console.log(mainGroups)
+                        return mainGroups;
+                    }
+                });
+
+
+            }
+
+
+        });/*
+        var check = function () {
+            if (count === l) {
+                console.log("C");
+
+            } else {
+                setTimeout(check, 1000);
+                console.log("T");
+            }
+        }
+        check();
+
+        console.log(mainGroups.length);*/
+        return mainGroups;
+
+
+
+        /*
+        for (let index = 0; index < results.length; index++) {
+            const g = results[index].groups[0].display_name;
+            var included = false;
+            if (groups.length === 0) {
+                groups.push(g);
+                //console.log(g);
+
+            }
+            else {
+                for (let index2 = 0; index2 < groups.length; index2++) {
+                    if (groups[index2] === g) {
+                        included = true;
+                        break;
+                    }
+                }
+                if (!included) {
+                    groups.push(g);
+                }
+            }
+
+        }*/
+        //return groups;
+    };
+    CKANRequest.prototype.sendHttpRequest = function (method, url, data) {
+        var promise = new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, url);
+            xhr.responseType = 'json';
+            if (data) {
+                xhr.setRequestHeader('Content-Type', 'application/json');
+            }
+            xhr.onload = function () {
+                if (xhr.status >= 400) {
+                    reject(xhr.response);
+                }
+                else {
+                    resolve(xhr.response);
+                }
+            };
+            xhr.onerror = function () {
+                reject('Something went wrong!');
+            };
+            xhr.send(JSON.stringify(data));
+        });
+        return promise;
+    };
+
+    return CKANRequest;
+}());
