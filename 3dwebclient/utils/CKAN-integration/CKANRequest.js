@@ -16,10 +16,12 @@ var CKANRequest = /** @class */ (function () {
         //console.log(packageUrl);
         var results = [];
         var groups;
+        groups = await CKANRequest.prototype.getMainGroups(url);
+        var mainGroupArray=[];
 
         CKANRequest.prototype.sendHttpRequest('GET', packageUrl).then(function (responseData) {
             //result= parseResponse(responseData);
-            //console.log(responseData.result.results);
+            console.log(responseData.result.results);
             for (var index = 0; index < responseData.result.results.length; index++) {
                 var tempUrl = url + "/api/3/action/package_show?id=" + responseData.result.results[index].id;
                 var tempResponseData = responseData;
@@ -34,9 +36,9 @@ var CKANRequest = /** @class */ (function () {
                         //console.log(results);
                         //console.log(url);
 
-                        groups = await CKANRequest.prototype.getMainGroups(url);
+                        //groups = await CKANRequest.prototype.getMainGroups(url);
 
-                        function setGroups() {
+                        async function setGroups() {
                             if (groups != undefined) {
                                 if (groups.length == 0) {
                                     setTimeout(setGroups, 1000);
@@ -46,7 +48,7 @@ var CKANRequest = /** @class */ (function () {
                                     //console.log("loop")
                                     //var text = "<dl>";
                                     
-                                    var mainGroupArray=[];
+                                    
                                     for (let i = 0; i < groups.length; i++) {
                                         var tempDatasetArr=[];
                                         //text = text + "<dt>" + groups[i] + "</dt>";
@@ -64,7 +66,7 @@ var CKANRequest = /** @class */ (function () {
                                         var tempGr= new MainGroup(groups[i], tempDatasetArr);
                                         mainGroupArray.push(tempGr);
                                     }
-                                    console.log(mainGroupArray);
+                                    
                                     //text = text + "</dl>";
 
                                     //x.innerHTML = text;
@@ -74,7 +76,8 @@ var CKANRequest = /** @class */ (function () {
                                 setTimeout(setGroups, 1000);
                             }
                         }
-                        setGroups();
+                        await setGroups().then(console.log(mainGroupArray));
+                        //console.log(mainGroupArray);
 
 
                     }
