@@ -44,7 +44,7 @@ var CKANRequest = /** @class */ (function () {
                                     setTimeout(setGroups, 1000);
                                 } else {
                                     //console.log(groups.length);
-                                    //var x = document.getElementById("CKAN_Results");
+                                    //
                                     //console.log("loop")
                                     //var text = "<dl>";
                                     
@@ -78,7 +78,25 @@ var CKANRequest = /** @class */ (function () {
                         }
                         await setGroups().then(console.log(mainGroupArray));
                         //console.log(mainGroupArray);
-
+                        var x = document.getElementById("CKAN_Results");
+                        var text = "<dl>";
+                        for (let i = 0; i < mainGroupArray.length; i++) {
+                            if(mainGroupArray[i].datasetArray.length>0){
+                                text = text + "<dt>" + mainGroupArray[i].name + "</dt>";
+                                for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
+                                    text = text + "<dd>" + mainGroupArray[i].datasetArray[j].title + "</dd>";
+                                    
+                                }
+                            }
+                            
+                        }
+                        text = text + "</dl>";
+                        x.innerHTML = text;
+                        x.style.display = "block";
+                        document.getElementById("ResultWindow").style.display="block";
+                        document.getElementById("CloseCKANButton").style.display = "block";
+                        document.getElementById("MinCKANButton").style.display = "block";
+                        
 
                     }
 
@@ -245,6 +263,22 @@ var CKANRequest = /** @class */ (function () {
             xhr.send(JSON.stringify(data));
         });
         return promise;
+    };
+    CKANRequest.prototype.closeResults = function () {
+        document.getElementById("ResultWindow").style.display="none";
+        document.getElementById("CloseCKANButton").style.display="none";
+        document.getElementById("MinCKANButton").style.display="none";
+        document.getElementById("MaxCKANButton").style.display="none";
+    };
+    CKANRequest.prototype.minResults = function () {
+        document.getElementById("CKAN_Results").style.display="none";
+        document.getElementById("MinCKANButton").style.display="none";
+        document.getElementById("MaxCKANButton").style.display="block";
+    };
+    CKANRequest.prototype.maxResults = function () {
+        document.getElementById("CKAN_Results").style.display="block";
+        document.getElementById("MinCKANButton").style.display="block";
+        document.getElementById("MaxCKANButton").style.display="none";
     };
 
     return CKANRequest;

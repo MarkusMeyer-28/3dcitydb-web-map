@@ -229,15 +229,16 @@
             z-index: 99980;
             width: 160pt;
         }
-        #CKAN_Button{
-            left:320pt;
+
+        #CKAN_Button {
+            left: 320pt;
             position: absolute;
-            width:100%
+            width: 100%;
 
         }
 
         #urlInput {
-            left:320pt;
+            left: 320pt;
             top: 30pt;
             position: absolute;
             padding-top: 10px;
@@ -250,8 +251,8 @@
             font-size: 9pt;
 
         }
-        #CKAN_Results{
-            padding-left: 5px;
+        #ResultWindow{
+            
             background: rgba(42, 42, 42, 0.5);
             color: rgb(255, 255, 255);
             border: 2px #505050 solid;
@@ -260,6 +261,50 @@
             top: 70pt;
             width: 200%;
             display: none;
+        }
+        #ResultHeadline{
+            background: #505050;
+            font-size: 12pt;
+            padding-left: 5px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        #CKAN_Results {
+            padding-left: 5px;
+            font-size: 10pt;
+            z-index: 1;
+
+        }
+
+        #CloseCKANButton {
+            left: 296pt;
+            top: 70pt;
+            position: absolute;
+            width: 100%;
+            display: none;
+            z-index: 9000;
+            width: 100%;
+
+        }
+        #MinCKANButton {
+            left: 267pt;
+            top: 70pt;
+            position: absolute;
+            width: 100%;
+            display: none;
+            z-index: 8999;
+            width: 100%;
+
+        }
+        #MaxCKANButton {
+            left: 267pt;
+            top: 70pt;
+            position: absolute;
+            width: 100%;
+            display: none;
+            z-index: 8999;
+            width: 100%;
 
         }
     </style>
@@ -655,6 +700,7 @@
         </div>
 
     </div>
+    <!-- CKAN Extension -->
     <div id="CKAN_UI">
 
         <div id="CKAN_Button">
@@ -669,11 +715,25 @@
             <input id="urlCKAN" type="text" data-bind="value: url" value="https://catalog.gis.lrg.tum.de">
 
         </div>
-        <div id="CKAN_Results">
-            <dl>
-                <dt>Dataset type</dt>
-                <dd>Dataset title</dd>
-            </dl>
+        <div id="ResultWindow">
+            <div id="ResultHeadline">
+                <label>Catalog Entries</label>
+            </div>
+            <div id="CKAN_Results">
+                <dl>
+                    <dt>Dataset type</dt>
+                    <dd>Dataset title</dd>
+                </dl>
+            </div>
+        </div>
+        <div id="CloseCKANButton">
+            <button type="button" style="width: 45pt;"class="cesium-button" onclick="CKANRequest.prototype.closeResults()">Close</button>
+        </div>
+        <div id="MinCKANButton">
+            <button type="button" style="width: 26pt;" class="cesium-button" onclick="CKANRequest.prototype.minResults()">-</button>
+        </div>
+        <div id="MaxCKANButton">
+            <button type="button" style="width: 26pt;"class="cesium-button" onclick="CKANRequest.prototype.maxResults()">+</button>
         </div>
 
     </div>
