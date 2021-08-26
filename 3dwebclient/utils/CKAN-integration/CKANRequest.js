@@ -18,12 +18,19 @@ var CKANRequest = /** @class */ (function () {
         var results = [];
         var groups;
         groups = await CKANRequest.prototype.getMainGroups(url);
-        
+
 
         CKANRequest.prototype.sendHttpRequest('GET', packageUrl).then(function (responseData) {
             //result= parseResponse(responseData);
             console.log(responseData.result.results);
-            var size=responseData.result.results;
+            var size = responseData.result.results.length;
+            if (size == 0) {
+                document.getElementById("CKAN_Results").innerHTML = "<b> No data available</b>";
+                document.getElementById("CKAN_Results").style.display = "block";
+                document.getElementById("ResultWindow").style.display = "block";
+                document.getElementById("CloseCKANButton").style.display = "block";
+                document.getElementById("MinCKANButton").style.display = "block";
+            }
             for (var index = 0; index < responseData.result.results.length; index++) {
                 var tempUrl = url + "/api/3/action/package_show?id=" + responseData.result.results[index].id;
                 var tempResponseData = responseData;
@@ -82,22 +89,21 @@ var CKANRequest = /** @class */ (function () {
                         //console.log(mainGroupArray);
                         var x = document.getElementById("CKAN_Results");
                         var text = "";
-                        
-                        var t = -200;
+
+
                         for (let i = 0; i < mainGroupArray.length; i++) {
                             if (mainGroupArray[i].datasetArray.length > 0) {
-                                text = text+ "<p>" + mainGroupArray[i].name+"</p>";
-                                t = t + 10;
+                                text = text + "<b>" + mainGroupArray[i].name + "</b>";
+
                                 for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
-                                    
-                                    text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='"+i+"/"+j+"' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
-                                    
+
+                                    text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
                                 }
-                                text=text+"<br>";
+                                //text=text+"<br>";
                             }
 
                         }
-                       
+
                         //text = text + "</ul>";
                         x.innerHTML = text;
                         x.style.display = "block";
@@ -289,9 +295,18 @@ var CKANRequest = /** @class */ (function () {
         document.getElementById("MaxCKANButton").style.display = "none";
     };
     CKANRequest.prototype.addToMap = function (name) {
-        var chars= name.split("/");
-        console.log(mainGroupArray[chars[0]].datasetArray[chars[1]]);
+        if (document.getElementsByName(name)[0].innerHTML == "+") {
+            var chars = name.split("/");
+            console.log(mainGroupArray[chars[0]].datasetArray[chars[1]]);
+            document.getElementsByName(name)[0].innerHTML = "-";
+        }else if (document.getElementsByName(name)[0].innerHTML == "-") {
+            var chars = name.split("/");
+            console.log("Remove");
+            document.getElementsByName(name)[0].innerHTML = "+";
+        }
+        //document.getElementsByName("R"+name)[0].style.display="block";
     };
+    
 
     return CKANRequest;
 }());

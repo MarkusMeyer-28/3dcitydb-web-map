@@ -273,10 +273,13 @@
         }
 
         #CKAN_Results {
+            padding-top: 5px;
             padding-left: 5px;
             font-size: 10pt;
             z-index: 1;
-            line-height: 1.1;
+            overflow-y: auto;
+            max-height:550px;
+            
 
         }
 
@@ -313,11 +316,16 @@
         #AddButton{
             vertical-align:middle; 
             padding-left: 10px;
-            font-size: 7pt;
+            font-size: 5pt;
             position: relative;
             
-
-
+        }
+        #RemoveButton{
+            vertical-align:middle; 
+            padding-left: 10px;
+            font-size: 5pt;
+            position: relative;
+            display: none;
         }
     </style>
 </head>
