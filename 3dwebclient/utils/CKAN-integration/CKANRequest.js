@@ -13,10 +13,11 @@ var CKANRequest = /** @class */ (function () {
         north = view.north * 180 / Cesium.Math.PI;
         south = view.south * 180 / Cesium.Math.PI;
         var url = document.getElementById('urlCKAN').value;
-        var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north;
+        var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north+"&rows=99999999999999999";
         //console.log(packageUrl);
         var results = [];
         var groups;
+        mainGroupArray=[];
         groups = await CKANRequest.prototype.getMainGroups(url);
 
 
@@ -31,6 +32,7 @@ var CKANRequest = /** @class */ (function () {
                 document.getElementById("CloseCKANButton").style.display = "block";
                 document.getElementById("MinCKANButton").style.display = "block";
             }
+            console.log(responseData.result.results.length);
             for (var index = 0; index < responseData.result.results.length; index++) {
                 var tempUrl = url + "/api/3/action/package_show?id=" + responseData.result.results[index].id;
                 var tempResponseData = responseData;
@@ -297,8 +299,24 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.addToMap = function (name) {
         if (document.getElementsByName(name)[0].innerHTML == "+") {
             var chars = name.split("/");
-            console.log(mainGroupArray[chars[0]].datasetArray[chars[1]]);
+            //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
             document.getElementsByName(name)[0].innerHTML = "-";
+            var spatial=mainGroupArray[chars[0]].datasetArray[chars[1]].spatial;
+            var splitspatial= spatial.split('"type":').join(",").split(",");
+            var type=splitspatial[1];
+            var coordinateArray=splitspatial.join(",").split('"coordinates":')[1].split('],[');
+            //console.log(type);
+            if(type=='"Point"'){
+                //console.log("Point!");
+                coordinateArray=coordinateArray.join(";");
+                coordinateArray=coordinateArray.substring(1,coordinateArray.length-2);
+            }
+            if(type=='"MultiPolygon"'){
+                //console.log("Polygon!");
+                coordinateArray=coordinateArray.join(";");
+                coordinateArray=coordinateArray.substring(4,coordinateArray.length-5).split(";");
+            }
+            console.log(coordinateArray);
         }else if (document.getElementsByName(name)[0].innerHTML == "-") {
             var chars = name.split("/");
             console.log("Remove");
