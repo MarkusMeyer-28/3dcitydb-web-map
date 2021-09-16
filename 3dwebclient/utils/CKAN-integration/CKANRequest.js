@@ -13,11 +13,11 @@ var CKANRequest = /** @class */ (function () {
         north = view.north * 180 / Cesium.Math.PI;
         south = view.south * 180 / Cesium.Math.PI;
         var url = document.getElementById('urlCKAN').value;
-        var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north+"&rows=99999999999999999";
+        var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&rows=99999999999999999";
         //console.log(packageUrl);
         var results = [];
         var groups;
-        mainGroupArray=[];
+        mainGroupArray = [];
         groups = await CKANRequest.prototype.getMainGroups(url);
 
 
@@ -301,30 +301,58 @@ var CKANRequest = /** @class */ (function () {
             var chars = name.split("/");
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
             document.getElementsByName(name)[0].innerHTML = "-";
-            var spatial=mainGroupArray[chars[0]].datasetArray[chars[1]].spatial;
-            var splitspatial= spatial.split('"type":').join(",").split(",");
-            var type=splitspatial[1];
-            var coordinateArray=splitspatial.join(",").split('"coordinates":')[1].split('],[');
-            //console.log(type);
-            if(type=='"Point"'){
-                //console.log("Point!");
-                coordinateArray=coordinateArray.join(";");
-                coordinateArray=coordinateArray.substring(1,coordinateArray.length-2);
+            var spatial = mainGroupArray[chars[0]].datasetArray[chars[1]].spatial;
+            spatial= spatial.replace(/\s+/g, '');
+            console.log(spatial);
+            var splitspatial = spatial.split('"type":').join(",").split(",");
+            var type = splitspatial[1];
+            var coordinateArray = splitspatial.join(",").split('"coordinates":')[1].split('],[');
+            console.log(type);
+            if (type == '"Point"'|type==' "Point"') {
+                console.log("Point!");
+                coordinateArray = coordinateArray.join(";");
+                coordinateArray = coordinateArray.substring(1, coordinateArray.length - 2).split(",");
+                console.log(coordinateArray);
+                dataPoint = { longitude: parseFloat(coordinateArray[0]), latitude: parseFloat(coordinateArray[1]), height: 0 };
+                const pointEntity = cesiumViewer.entities.add({
+                    name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
+                    description: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
+                    position: Cesium.Cartesian3.fromDegrees(dataPoint.longitude, dataPoint.latitude, dataPoint.height),
+                    point: { pixelSize: 20, color: Cesium.Color.RED }
+                });
+
             }
-            if(type=='"MultiPolygon"'){
+            if (type == '"MultiPolygon"') {
                 //console.log("Polygon!");
-                coordinateArray=coordinateArray.join(";");
-                coordinateArray=coordinateArray.substring(4,coordinateArray.length-5).split(";");
+                coordinateArray = coordinateArray.join(",");
+                coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
+                //console.log(coordinateArray);
+                //adding Points
+                for (let index = 0; index < coordinateArray.length; index++) {
+                    coordinateArray[index] = parseFloat(coordinateArray[index]);
+                    
+                }
+                //console.log(coordinateArray);
+                var polygon = cesiumViewer.entities.add({
+                    name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
+                    polygon: {
+                      hierarchy: Cesium.Cartesian3.fromDegreesArray(
+                        coordinateArray,
+                      ),
+                      material: Cesium.Color.RED,
+                    },
+                  });
+                  
             }
-            console.log(coordinateArray);
-        }else if (document.getElementsByName(name)[0].innerHTML == "-") {
+            
+        } else if (document.getElementsByName(name)[0].innerHTML == "-") {
             var chars = name.split("/");
             console.log("Remove");
             document.getElementsByName(name)[0].innerHTML = "+";
         }
         //document.getElementsByName("R"+name)[0].style.display="block";
     };
-    
+
 
     return CKANRequest;
 }());
