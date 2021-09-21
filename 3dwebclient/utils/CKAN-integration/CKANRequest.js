@@ -302,14 +302,14 @@ var CKANRequest = /** @class */ (function () {
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
             document.getElementsByName(name)[0].innerHTML = "-";
             var spatial = mainGroupArray[chars[0]].datasetArray[chars[1]].spatial;
-            spatial= spatial.replace(/\s+/g, '');
+            spatial = spatial.replace(/\s+/g, '');
             console.log(spatial);
             var splitspatial = spatial.split('"type":').join(",").split(",");
             var type = splitspatial[1];
             var coordinateArray = splitspatial.join(",").split('"coordinates":')[1].split('],[');
             console.log(type);
-            if (type == '"Point"'|type==' "Point"') {
-                console.log("Point!");
+            if (type == '"Point"' | type == ' "Point"') {
+                //console.log("Point!");
                 coordinateArray = coordinateArray.join(";");
                 coordinateArray = coordinateArray.substring(1, coordinateArray.length - 2).split(",");
                 console.log(coordinateArray);
@@ -320,31 +320,90 @@ var CKANRequest = /** @class */ (function () {
                     position: Cesium.Cartesian3.fromDegrees(dataPoint.longitude, dataPoint.latitude, dataPoint.height),
                     point: { pixelSize: 20, color: Cesium.Color.RED }
                 });
+                cesiumViewer.flyTo(pointEntity);
 
             }
             if (type == '"MultiPolygon"') {
                 //console.log("Polygon!");
-                coordinateArray = coordinateArray.join(",");
-                coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
+                var multi = spatial.indexOf("]]],[[[");
                 //console.log(coordinateArray);
-                //adding Points
-                for (let index = 0; index < coordinateArray.length; index++) {
-                    coordinateArray[index] = parseFloat(coordinateArray[index]);
+                console.log(multi);
+                if (multi != -1) {
+                    var hole=[];
+                    var polygonCoos=[];
+                    coordinateArray=coordinateArray.join(",")
+                    coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
+                    console.log(coordinateArray);
+                    for (let index = 0; index < coordinateArray.length; index++) {
+                        if(coordinateArray[index].indexOf("[[")!=-1){
+                            console.log(index);
+                            coordinateArray[index]=coordinateArray[index].substring(2,coordinateArray[index].length);
+                            
+                            while(index<coordinateArray.length){
+                                polygonCoos[polygonCoos.length]=parseFloat(coordinateArray[index]);
+                                index++;
+                            }
+                            break;
+                        }
+                        else if(coordinateArray[index].indexOf("]]")==-1){
+                            hole[index]=parseFloat(coordinateArray[index]);
+                        }
+                        else{
+                            coordinateArray[index]=coordinateArray[index].substring(0,coordinateArray[index].length-2);
+                            hole[index]=parseFloat(coordinateArray[index]);
+                            
+                        }
+                        
+                    }
+                    console.log(polygonCoos);
+                    console.log(hole);
+                    var polygon = cesiumViewer.entities.add({
+                        name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
+                        polygon: {
+                            hierarchy: {
+                                positions: Cesium.Cartesian3.fromDegreesArray(
+                                    polygonCoos,
+                                ),
+                                holes: [
+                                    {
+                                        positions: Cesium.Cartesian3.fromDegreesArray(
+                                            hole,
+                                        ),
+                                    },
+                                ],
+                            },
+                            material: Cesium.Color.RED,
+                        },
+                    });
+                    cesiumViewer.flyTo(polygon);
                     
+
                 }
-                //console.log(coordinateArray);
-                var polygon = cesiumViewer.entities.add({
-                    name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
-                    polygon: {
-                      hierarchy: Cesium.Cartesian3.fromDegreesArray(
-                        coordinateArray,
-                      ),
-                      material: Cesium.Color.RED,
-                    },
-                  });
-                  
+                else {
+                    coordinateArray = coordinateArray.join(",");
+                    coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
+                    //coordinateArray.split(",");
+                    console.log(coordinateArray);
+                    //adding Points
+                    for (let index = 0; index < coordinateArray.length; index++) {
+                        coordinateArray[index] = parseFloat(coordinateArray[index]);
+
+                    }
+                    //console.log(coordinateArray);
+                    var polygon = cesiumViewer.entities.add({
+                        name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
+                        polygon: {
+                            hierarchy: Cesium.Cartesian3.fromDegreesArray(
+                                coordinateArray,
+                            ),
+                            material: Cesium.Color.RED,
+                        },
+                    });
+                    cesiumViewer.flyTo(polygon);
+                }
+
             }
-            
+
         } else if (document.getElementsByName(name)[0].innerHTML == "-") {
             var chars = name.split("/");
             console.log("Remove");
