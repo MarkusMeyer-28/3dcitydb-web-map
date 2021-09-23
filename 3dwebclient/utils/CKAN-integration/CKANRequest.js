@@ -98,10 +98,10 @@ var CKANRequest = /** @class */ (function () {
                                 text = text + "<b>" + mainGroupArray[i].name + "</b>";
 
                                 for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
-                                    if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show==true) {
-                                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j +"/"+ mainGroupArray[i].datasetArray[j].title+"' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
-                                    }else{
-                                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/"+ mainGroupArray[i].datasetArray[j].title+"' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
+                                    if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
+                                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
+                                    } else {
+                                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
                                     }
                                 }
                                 //text=text+"<br>";
@@ -305,6 +305,51 @@ var CKANRequest = /** @class */ (function () {
 
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
             document.getElementsByName(name)[0].innerHTML = "-";
+            var entityDescription='<table class="cesium-infoBox-defaultTable"><tbody>' +
+                "<tr><th>Author</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].author +
+                "</td></tr>" +
+                "<tr><th>Maintainer</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].maintainer +
+                "</td></tr>" +
+                "<tr><th>Title</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].title +
+                "</td></tr>" +
+                "<tr><th>Language</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].language +
+                "</td></tr>" +
+                "<tr><th>ID</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].id +
+                "</td></tr>" +
+                "<tr><th>Type</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].type +
+                "</td></tr>" +
+                "<tr><th>State</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].state +
+                "</td></tr>" +
+                "<tr><th>Is Open</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].isopen +
+                "</td></tr>" +
+                "<tr><th>Organization</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].organization.title +
+                "</td></tr>" +
+                "<tr><th>Num Resources</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
+                "</td></tr>" +
+                "<tr><th>URL</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].url +
+                "</td></tr>" +
+                "<tr><th>Created</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].metadata_created +
+                "</td></tr>" +
+                "<tr><th>Last Modified</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].metadata_modified +
+                "</td></tr>" +
+                "<tr><th>Notes</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].notes +
+                "</td></tr>" +
+                "</tbody></table>";
+
             if (cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title) != undefined) {
                 var entity = cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
                 entity.show = !entity.show;
@@ -313,24 +358,30 @@ var CKANRequest = /** @class */ (function () {
             }
             var spatial = mainGroupArray[chars[0]].datasetArray[chars[1]].spatial;
             spatial = spatial.replace(/\s+/g, '');
-            console.log(spatial);
+            //console.log(spatial);
             var splitspatial = spatial.split('"type":').join(",").split(",");
             var type = splitspatial[1];
             var coordinateArray = splitspatial.join(",").split('"coordinates":')[1].split('],[');
-            console.log(type);
+            //console.log(type);
             if (type == '"Point"' | type == ' "Point"') {
                 //console.log("Point!");
                 coordinateArray = coordinateArray.join(";");
                 coordinateArray = coordinateArray.substring(1, coordinateArray.length - 2).split(",");
-                console.log(coordinateArray);
+                //console.log(coordinateArray);
+                var pinBuilder = new Cesium.PinBuilder();
                 dataPoint = { longitude: parseFloat(coordinateArray[0]), latitude: parseFloat(coordinateArray[1]), height: 0 };
                 const pointEntity = cesiumViewer.entities.add({
                     name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
                     id: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
-                    description: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
+
                     position: Cesium.Cartesian3.fromDegrees(dataPoint.longitude, dataPoint.latitude, dataPoint.height),
-                    point: { pixelSize: 20, color: Cesium.Color.RED }
+                    billboard: {
+                        image: pinBuilder.fromColor(Cesium.Color.RED.withAlpha(0.8), 40).toDataURL(),
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    },
                 });
+                
+                pointEntity.description = entityDescription;
                 cesiumViewer.flyTo(cesiumViewer.entities);
 
             }
@@ -338,16 +389,16 @@ var CKANRequest = /** @class */ (function () {
                 //console.log("Polygon!");
                 var multi = spatial.indexOf("]]],[[[");
                 //console.log(coordinateArray);
-                console.log(multi);
+                //console.log(multi);
                 if (multi != -1) {
                     var hole = [];
                     var polygonCoos = [];
                     coordinateArray = coordinateArray.join(",")
                     coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
-                    console.log(coordinateArray);
+                    //console.log(coordinateArray);
                     for (let index = 0; index < coordinateArray.length; index++) {
                         if (coordinateArray[index].indexOf("[[") != -1) {
-                            console.log(index);
+                            //console.log(index);
                             coordinateArray[index] = coordinateArray[index].substring(2, coordinateArray[index].length);
 
                             while (index < coordinateArray.length) {
@@ -366,8 +417,8 @@ var CKANRequest = /** @class */ (function () {
                         }
 
                     }
-                    console.log(polygonCoos);
-                    console.log(hole);
+                    //console.log(polygonCoos);
+                    //console.log(hole);
                     var polygon = cesiumViewer.entities.add({
                         name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
                         id: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
@@ -384,7 +435,7 @@ var CKANRequest = /** @class */ (function () {
                                     },
                                 ],
                             },
-                            material: Cesium.Color.RED,
+                            material: Cesium.Color.RED.withAlpha(0.5),
                         },
                     });
                     cesiumViewer.flyTo(cesiumViewer.entities);
@@ -395,7 +446,7 @@ var CKANRequest = /** @class */ (function () {
                     coordinateArray = coordinateArray.join(",");
                     coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
                     //coordinateArray.split(",");
-                    console.log(coordinateArray);
+                    //console.log(coordinateArray);
                     //adding Points
                     for (let index = 0; index < coordinateArray.length; index++) {
                         coordinateArray[index] = parseFloat(coordinateArray[index]);
@@ -409,18 +460,20 @@ var CKANRequest = /** @class */ (function () {
                             hierarchy: Cesium.Cartesian3.fromDegreesArray(
                                 coordinateArray,
                             ),
-                            material: Cesium.Color.RED,
+                            material: Cesium.Color.RED.withAlpha(0.5),
                         },
                     });
                     cesiumViewer.flyTo(cesiumViewer.entities);
                 }
+                polygon.description = entityDescription;
+                cesiumViewer.flyTo(cesiumViewer.entities);
 
             }
 
         } else if (document.getElementsByName(name)[0].innerHTML == "-") {
             var chars = name.split("/");
             //console.log("Remove");
-            console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
+            //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             var entity = cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             entity.show = !entity.show;
             cesiumViewer.flyTo(cesiumViewer.entities);
