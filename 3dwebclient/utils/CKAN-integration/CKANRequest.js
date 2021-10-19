@@ -305,6 +305,12 @@ var CKANRequest = /** @class */ (function () {
 
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
             document.getElementsByName(name)[0].innerHTML = "-";
+            var groupstring="";
+            for(let index = 0; index <mainGroupArray[chars[0]].datasetArray[chars[1]].groups.length;index++){
+                groupstring=groupstring+ mainGroupArray[chars[0]].datasetArray[chars[1]].groups[index].display_name+", ";
+            }
+            groupstring=groupstring.substring(0,groupstring.length-2);
+
             var entityDescription='<table class="cesium-infoBox-defaultTable"><tbody>' +
                 "<tr><th>Author</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].author +
@@ -332,6 +338,9 @@ var CKANRequest = /** @class */ (function () {
                 "</td></tr>" +
                 "<tr><th>Organization</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].organization.title +
+                "</td></tr>" +
+                "<tr><th>Groups</th><td>" +
+                groupstring +
                 "</td></tr>" +
                 "<tr><th>Num Resources</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
