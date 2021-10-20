@@ -309,6 +309,13 @@ var CKANRequest = /** @class */ (function () {
             for(let index = 0; index <mainGroupArray[chars[0]].datasetArray[chars[1]].groups.length;index++){
                 groupstring=groupstring+ mainGroupArray[chars[0]].datasetArray[chars[1]].groups[index].display_name+", ";
             }
+            var resourcesString="";
+            for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].resources.length; index++) {
+                resourcesString = resourcesString+"<tr><th>Resource "+(index+1)+"</th><td><a href='"+
+                mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url+"' target='_blank'>"+mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url+"</a>" +
+                "</td></tr>";
+                
+            }
             groupstring=groupstring.substring(0,groupstring.length-2);
 
             var entityDescription='<table class="cesium-infoBox-defaultTable"><tbody>' +
@@ -345,6 +352,7 @@ var CKANRequest = /** @class */ (function () {
                 "<tr><th>Num Resources</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
                 "</td></tr>" +
+                resourcesString+
                 "<tr><th>URL</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].url +
                 "</td></tr>" +
