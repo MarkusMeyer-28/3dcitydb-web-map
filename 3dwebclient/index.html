@@ -327,6 +327,11 @@
             position: relative;
             display: none;
         }
+        #infoBoxTable{
+            overflow-y: auto;
+            max-height: 550px;
+
+        }
     </style>
 </head>
 
@@ -725,7 +730,7 @@
 
         <div id="CKAN_Button">
             <button type="button" style="width: 100%;" class="cesium-button"
-                onclick="CKANRequest.prototype.getDatasets()">Get CKAN
+                onclick="CKANRequest.prototype.setUp()">Get CKAN
                 Data</button>
         </div>
 

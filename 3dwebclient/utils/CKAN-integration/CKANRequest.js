@@ -1,7 +1,28 @@
 var CKANRequest = /** @class */ (function () {
     var mainGroupArray = [];
+    
+
     function CKANRequest() {
 
+    }
+    CKANRequest.prototype.setUp = async function () {
+        /*
+        var iframes = document.querySelectorAll('iframe.cesium-infoBox-iframe');
+        var iframeDoc = new XMLSerializer().serializeToString(iframes[0].contentWindow.document);
+        console.log(iframeDoc);
+        iframes[0].parentNode.removeChild(iframes[0]);
+        const table = document.createElement("div");
+        //table.className = "cesium-infoBox-defaultTable";
+        table.id="infoBoxTable";
+        table.innerHTML=iframeDoc;
+        table.style="max-height: 794px; height: 920px; filter: none;";
+        
+        //console.log(table);
+        var cesiumInfo = document.querySelectorAll('div.cesium-infoBox')[0];
+        cesiumInfo.appendChild(table);
+        */
+        document.getElementsByClassName('cesium-infoBox-iframe')[0].setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-forms');
+        CKANRequest.prototype.getDatasets();
     }
     CKANRequest.prototype.getDatasets = async function () {
         //const request = new XMLHttpRequest();
@@ -305,20 +326,22 @@ var CKANRequest = /** @class */ (function () {
 
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
             document.getElementsByName(name)[0].innerHTML = "-";
-            var groupstring="";
-            for(let index = 0; index <mainGroupArray[chars[0]].datasetArray[chars[1]].groups.length;index++){
-                groupstring=groupstring+ mainGroupArray[chars[0]].datasetArray[chars[1]].groups[index].display_name+", ";
+            var groupstring = "";
+            for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].groups.length; index++) {
+                groupstring = groupstring + mainGroupArray[chars[0]].datasetArray[chars[1]].groups[index].display_name + ", ";
             }
-            var resourcesString="";
+            var resourcesString = "";
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].resources.length; index++) {
-                resourcesString = resourcesString+"<tr><th>Resource "+(index+1)+"</th><td><a href='"+
-                mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url+"' target='_blank'>"+mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url+"</a>" +
-                "</td></tr>";
-                
-            }
-            groupstring=groupstring.substring(0,groupstring.length-2);
+                resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
+                    mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>" +
+                    "</td></tr>";
 
-            var entityDescription='<table class="cesium-infoBox-defaultTable"><tbody>' +
+            }
+            groupstring = groupstring.substring(0, groupstring.length - 2);
+
+
+
+            var entityDescription = '<table class="cesium-infoBox-defaultTable"><tbody>' +
                 "<tr><th>Author</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].author +
                 "</td></tr>" +
@@ -352,7 +375,7 @@ var CKANRequest = /** @class */ (function () {
                 "<tr><th>Num Resources</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
                 "</td></tr>" +
-                resourcesString+
+                resourcesString +
                 "<tr><th>URL</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].url +
                 "</td></tr>" +
@@ -366,7 +389,10 @@ var CKANRequest = /** @class */ (function () {
                 mainGroupArray[chars[0]].datasetArray[chars[1]].notes +
                 "</td></tr>" +
                 "</tbody></table>";
-
+            //var tableElement=document.getElementById("infoBoxTable");
+            //var infoBoxDescription=tableElement.querySelectorAll('div.cesium-infoBox-description')[0];
+            
+            //infoBoxDescription.innerHTML=entityDescription;
             if (cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title) != undefined) {
                 var entity = cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
                 entity.show = !entity.show;
@@ -397,7 +423,7 @@ var CKANRequest = /** @class */ (function () {
                         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                     },
                 });
-                
+
                 pointEntity.description = entityDescription;
                 cesiumViewer.flyTo(cesiumViewer.entities);
 
@@ -485,6 +511,7 @@ var CKANRequest = /** @class */ (function () {
                 polygon.description = entityDescription;
                 cesiumViewer.flyTo(cesiumViewer.entities);
 
+
             }
 
         } else if (document.getElementsByName(name)[0].innerHTML == "-") {
@@ -497,6 +524,7 @@ var CKANRequest = /** @class */ (function () {
             document.getElementsByName(name)[0].innerHTML = "+";
 
         }
+
         //document.getElementsByName("R"+name)[0].style.display="block";
     };
 
