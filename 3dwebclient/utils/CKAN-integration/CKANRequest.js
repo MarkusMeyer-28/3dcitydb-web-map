@@ -1,6 +1,6 @@
 var CKANRequest = /** @class */ (function () {
     var mainGroupArray = [];
-    
+
 
     function CKANRequest() {
 
@@ -21,7 +21,9 @@ var CKANRequest = /** @class */ (function () {
         var cesiumInfo = document.querySelectorAll('div.cesium-infoBox')[0];
         cesiumInfo.appendChild(table);
         */
-        document.getElementsByClassName('cesium-infoBox-iframe')[0].setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-forms');
+        //document.getElementsByClassName('cesium-infoBox-iframe')[0].setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-forms');
+        //cesiumViewer.infoBox.allowScripts=true;
+        cesiumViewer.infoBox.frame.removeAttribute('sandbox');
         CKANRequest.prototype.getDatasets();
     }
     CKANRequest.prototype.getDatasets = async function () {
@@ -120,9 +122,20 @@ var CKANRequest = /** @class */ (function () {
 
                                 for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
                                     if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
-                                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
+                                        if (mainGroupArray[i].datasetArray[j].num_resources > 0) {
+                                            text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button><button id='ResourceButton' name='R/" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showResource(name)'>Resources</button></p>";
+                                        }
+                                        else {
+                                            text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
+                                        }
+
                                     } else {
-                                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
+                                        if (mainGroupArray[i].datasetArray[j].num_resources > 0) {
+                                            text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button><button id='ResourceButton' name='R/" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showResource(name)'>Resources</button></p>";
+                                        }
+                                        else {
+                                            text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
+                                        }
                                     }
                                 }
                                 //text=text+"<br>";
@@ -330,18 +343,15 @@ var CKANRequest = /** @class */ (function () {
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].groups.length; index++) {
                 groupstring = groupstring + mainGroupArray[chars[0]].datasetArray[chars[1]].groups[index].display_name + ", ";
             }
-            var resourcesString = "";
-            for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].resources.length; index++) {
-                resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
-                    mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>" +
-                    "</td></tr>";
 
-            }
             groupstring = groupstring.substring(0, groupstring.length - 2);
 
 
 
             var entityDescription = '<table class="cesium-infoBox-defaultTable"><tbody>' +
+                "<tr><th>Num Resources</th><td>" +
+                mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
+                "</td></tr>" +
                 "<tr><th>Author</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].author +
                 "</td></tr>" +
@@ -372,10 +382,6 @@ var CKANRequest = /** @class */ (function () {
                 "<tr><th>Groups</th><td>" +
                 groupstring +
                 "</td></tr>" +
-                "<tr><th>Num Resources</th><td>" +
-                mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
-                "</td></tr>" +
-                resourcesString +
                 "<tr><th>URL</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].url +
                 "</td></tr>" +
@@ -391,7 +397,7 @@ var CKANRequest = /** @class */ (function () {
                 "</tbody></table>";
             //var tableElement=document.getElementById("infoBoxTable");
             //var infoBoxDescription=tableElement.querySelectorAll('div.cesium-infoBox-description')[0];
-            
+
             //infoBoxDescription.innerHTML=entityDescription;
             if (cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title) != undefined) {
                 var entity = cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
@@ -527,6 +533,26 @@ var CKANRequest = /** @class */ (function () {
 
         //document.getElementsByName("R"+name)[0].style.display="block";
     };
+    CKANRequest.prototype.showResource = function (name) {
+        var chars = name.split("/");
+        console.log(chars[1]);
+        var resourcesString = '<table class="cesium-infoBox-defaultTable"><tbody>';
+        for (let index = 0; index < mainGroupArray[chars[1]].datasetArray[chars[2]].resources.length; index++) {
+            resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
+                mainGroupArray[chars[1]].datasetArray[chars[2]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[1]].datasetArray[chars[2]].resources[index].url + "</a>" +
+                "</td></tr>";
+
+        }
+        resourcesString = resourcesString + "</tbody></table>";
+        console.log(mainGroupArray[chars[1]].datasetArray[chars[2]].resources);
+        const table=document.getElementById("ResourceTable")
+        table.innerHTML=resourcesString;
+        const resContainer=document.getElementById("ResourceContainer")
+        resContainer.style.display="block";
+    }
+    CKANRequest.prototype.closeResource = function () {
+        document.getElementById("ResourceContainer").style.display="none"
+    }
 
 
     return CKANRequest;

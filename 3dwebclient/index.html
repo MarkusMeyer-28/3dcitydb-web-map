@@ -220,8 +220,8 @@
             border: 3px #505050 solid;
         }
 
-       
-        
+
+
         #CKAN_UI {
             border-radius: 5px;
             padding: 5px;
@@ -253,8 +253,9 @@
             font-size: 9pt;
 
         }
-        #ResultWindow{
-            
+
+        #ResultWindow {
+
             background: rgba(42, 42, 42, 0.5);
             color: rgb(255, 255, 255);
             border: 2px #505050 solid;
@@ -264,7 +265,8 @@
             width: 305pt;
             display: none;
         }
-        #ResultHeadline{
+
+        #ResultHeadline {
             background: #505050;
             font-size: 12pt;
             padding-left: 5px;
@@ -278,31 +280,33 @@
             font-size: 10pt;
             z-index: 1;
             overflow-y: auto;
-            max-height:550px;
-            
+            max-height: 550px;
+
 
         }
 
         #CloseCKANButton {
-            left: 258pt;
+            left: 279pt;
             top: -2pt;
             position: absolute;
             width: 100%;
             display: none;
             z-index: 9000;
-            
+
 
         }
+
         #MinCKANButton {
-            left: 229pt;
+            left: 253pt;
             top: -2pt;
             position: absolute;
             width: 100%;
             display: none;
             z-index: 8999;
-            
+
 
         }
+
         #MaxCKANButton {
             left: 229pt;
             top: -2pt;
@@ -310,28 +314,69 @@
             width: 100%;
             display: none;
             z-index: 8999;
-           
+
 
         }
-        #AddButton{
-            vertical-align:middle; 
+
+        #AddButton {
+            vertical-align: middle;
             padding-left: 10px;
             font-size: 7pt;
             position: relative;
-            
+
         }
-        #RemoveButton{
-            vertical-align:middle; 
+
+        #RemoveButton {
+            vertical-align: middle;
             padding-left: 10px;
             font-size: 5pt;
             position: relative;
             display: none;
         }
-        #infoBoxTable{
+
+        #infoBoxTable {
             overflow-y: auto;
             max-height: 550px;
 
         }
+        #ResourceContainer{
+            background: rgba(42, 42, 42, 0.5);
+            color: rgb(255, 255, 255);
+            border: 2px #505050 solid;
+            position: absolute;
+            left: 320pt;
+            top: 70pt;
+            width: 169pt;
+            display: none;
+        }
+        #ResourceHeadline{
+            background: #505050;
+            font-size: 11pt;
+            padding-left: 5px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        #ResourceTable{
+            padding-top: 5px;
+            padding-left: 5px;
+            font-size: 8pt;
+            z-index: 1;
+            overflow-y: auto;
+            max-height: 550px;
+        }
+        #CloseResourceButton{
+            left: 143pt;
+            top: -3pt;
+            position: absolute;
+            width: 2px;
+            font-size: 4pt;
+            z-index: 9000;
+        }
+        #ResourceButton{
+            font-size: 8pt;
+        }
+
+        
     </style>
 </head>
 
@@ -339,7 +384,7 @@
     <div id="cesiumContainer"></div>
     <div id="loadingIndicator" class="loadingIndicator"></div>
     <div id="citydb_cachedTilesInspector" class="cesium-cesiumInspector"
-        style="display: block; position: absolute; bottom: 5px; right: 5px; width: 130px"   
+        style="display: block; position: absolute; bottom: 5px; right: 5px; width: 130px"
         data-bind="html: dataSourcesText"></div>
     <div id="citydb_showedTilesInspector" class="cesium-cesiumInspector"
         style="display: block; position: absolute; bottom: 5px; right: 170px; width: 130px"
@@ -729,8 +774,8 @@
     <div id="CKAN_UI">
 
         <div id="CKAN_Button">
-            <button type="button" style="width: 100%;" class="cesium-button"
-                onclick="CKANRequest.prototype.setUp()">Get CKAN
+            <button type="button" style="width: 100%;" class="cesium-button" onclick="CKANRequest.prototype.setUp()">Get
+                CKAN
                 Data</button>
         </div>
 
@@ -745,21 +790,39 @@
                 <label>Catalog Entries</label>
             </div>
             <div id="CloseCKANButton">
-                <button type="button" style="width: 45pt;"class="cesium-button" onclick="CKANRequest.prototype.closeResults()">Close</button>
+                <button type="button"  class="cesium-button"
+                    onclick="CKANRequest.prototype.closeResults()">x</button>
             </div>
             <div id="MinCKANButton">
-                <button type="button" style="width: 26pt;" class="cesium-button" onclick="CKANRequest.prototype.minResults()">-</button>
+                <button type="button"  class="cesium-button"
+                    onclick="CKANRequest.prototype.minResults()">-</button>
             </div>
             <div id="MaxCKANButton">
-                <button type="button" style="width: 26pt;"class="cesium-button" onclick="CKANRequest.prototype.maxResults()">+</button>
+                <button type="button"  class="cesium-button"
+                    onclick="CKANRequest.prototype.maxResults()">+</button>
             </div>
             <div id="CKAN_Results">
                 <p>MainGroup</p>
-                <p>Dataset<button id="AddButton" type="button" class="cesium-button" onclick="CKANRequest.prototype.maxResults()">+</button></p>
+                <p>Dataset<button id="AddButton" type="button" class="cesium-button"
+                        onclick="CKANRequest.prototype.maxResults()">+</button><button id="ResourceButton" type="button"
+                        class="cesium-button"
+                        onclick="CKANRequest.prototype.showResources(mainGroupArray[chars[0]].datasetArray[chars[1]].resources)">i</button>
+                </p>
             </div>
-            
+
         </div>
-        
+        <div id="ResourceContainer">
+            <div id="ResourceHeadline">
+                <label>Resources</label>
+            </div>
+            <div id="CloseResourceButton">
+                <button type="button"  class="cesium-button"
+                    onclick="CKANRequest.prototype.closeResource()">x</button>
+            </div>
+            <div id="ResourceTable"></div>
+        </div>
+
+
     </div>
 
 
