@@ -91,6 +91,7 @@
         @import url(../ThirdParty/Cesium/Widgets/widgets.css);
         @import url(css/GPSButtonStyles.css);
         @import url(css/MobileFullscreenStyles.css);
+        @import url(../ThirdParty/Cesium/Widgets/InfoBox/InfoBoxDescription.css);
         @import url(css/SplashWindow.css);
 
         html,
@@ -334,48 +335,14 @@
             display: none;
         }
 
-        #infoBoxTable {
+        #custom_infoBoxTable {
             overflow-y: auto;
-            max-height: 550px;
+            overflow-x: auto;
+            max-height: 750px;
 
         }
-        #ResourceContainer{
-            background: rgba(42, 42, 42, 0.5);
-            color: rgb(255, 255, 255);
-            border: 2px #505050 solid;
-            position: absolute;
-            left: 320pt;
-            top: 70pt;
-            width: 169pt;
-            display: none;
-        }
-        #ResourceHeadline{
-            background: #505050;
-            font-size: 11pt;
-            padding-left: 5px;
-            padding-top: 5px;
-            padding-bottom: 5px;
-        }
-        #ResourceTable{
-            padding-top: 5px;
-            padding-left: 5px;
-            font-size: 8pt;
-            z-index: 1;
-            overflow-y: auto;
-            max-height: 550px;
-        }
-        #CloseResourceButton{
-            left: 143pt;
-            top: -3pt;
-            position: absolute;
-            width: 2px;
-            font-size: 4pt;
-            z-index: 9000;
-        }
-        #ResourceButton{
-            font-size: 8pt;
-        }
-
+            
+        
         
     </style>
 </head>
@@ -811,16 +778,7 @@
             </div>
 
         </div>
-        <div id="ResourceContainer">
-            <div id="ResourceHeadline">
-                <label>Resources</label>
-            </div>
-            <div id="CloseResourceButton">
-                <button type="button"  class="cesium-button"
-                    onclick="CKANRequest.prototype.closeResource()">x</button>
-            </div>
-            <div id="ResourceTable"></div>
-        </div>
+        
 
 
     </div>
