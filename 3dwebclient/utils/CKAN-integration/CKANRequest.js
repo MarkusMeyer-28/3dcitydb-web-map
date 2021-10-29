@@ -558,6 +558,18 @@ var CKANRequest = /** @class */ (function () {
 
         //document.getElementsByName("R"+name)[0].style.display="block";
     };
+
+    CKANRequest.prototype.openAdditionalInput=function(){
+        if(document.getElementById("additionalInput").innerHTML=="Additional Input..."){
+            document.getElementById("additionalInput").innerHTML= "Close Additional Input";
+            document.getElementById("temporalInput").style.display="block";
+        }else if(document.getElementById("additionalInput").innerHTML=="Close Additional Input"){
+            document.getElementById("additionalInput").innerHTML="Additional Input...";
+            document.getElementById("temporalInput").style.display="none";
+        }
+        
+
+    }
    
 
     return CKANRequest;
