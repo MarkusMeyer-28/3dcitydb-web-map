@@ -6,11 +6,8 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.setUp = async function () {
+        //replace the iframe with a new div and add an EventListener to for selected Entities
 
-        //var iframes = document.querySelectorAll('iframe.cesium-infoBox-iframe');
-        //var iframeDoc = new XMLSerializer().serializeToString(iframes[0].contentWindow.document);
-        //console.log(iframeDoc);
-        //iframes[0].parentNode.removeChild(iframes[0]);
         var tableDiv = document.getElementById("custom_infoBoxTable")
         if (Cesium.defined(tableDiv)) {
             tableDiv.parentElement.removeChild(tableDiv);
@@ -20,13 +17,6 @@ var CKANRequest = /** @class */ (function () {
 
         tableDiv.id = "custom_infoBoxTable";
         tableDiv.className = "cesium-infoBox-description";
-        //tableDiv.classList.add="cesium-infobox-description";
-        /*
-        var table=document.createElement("table");
-        table.classList.add("cesium-infoBox-defaultTable");
-        table.style = "font-size:10.5pt";
-        tableDiv.appendChild(table);
-        */
         var infoBox = document.getElementsByClassName("cesium-infoBox")[0];
         var iframeObj = document.getElementsByClassName("cesium-infoBox-iframe")[0];
         console.log(infoBox)
@@ -55,7 +45,7 @@ var CKANRequest = /** @class */ (function () {
         CKANRequest.prototype.getDatasets();
     }
     CKANRequest.prototype.getDatasets = async function () {
-        //const request = new XMLHttpRequest();
+        // Communication to the CKAN API,  filling the ResultWindow with the Catalog Entries
         var cam = cesiumCamera;
         var camPos = cam.positionCartographic;
         var view = cam.computeViewRectangle(Cesium.Ellipsoid.WGS84);
@@ -235,6 +225,7 @@ var CKANRequest = /** @class */ (function () {
 
     };
     CKANRequest.prototype.getMainGroups = async function (url) {
+        // Use CKAN API to get MainGroups of Catalog
         var groups = [];
         var mainGroups = [];
         var count = 0;
@@ -312,6 +303,7 @@ var CKANRequest = /** @class */ (function () {
         //return groups;
     };
     CKANRequest.prototype.sendHttpRequest = function (method, url, data) {
+        //HTTPRequest function
         var promise = new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest();
             xhr.open(method, url);
@@ -335,22 +327,29 @@ var CKANRequest = /** @class */ (function () {
         return promise;
     };
     CKANRequest.prototype.closeResults = function () {
+        //Close Button in Result Window
         document.getElementById("ResultWindow").style.display = "none";
         document.getElementById("CloseCKANButton").style.display = "none";
         document.getElementById("MinCKANButton").style.display = "none";
         document.getElementById("MaxCKANButton").style.display = "none";
     };
     CKANRequest.prototype.minResults = function () {
+        //Minimize Button in Result Window
+
         document.getElementById("CKAN_Results").style.display = "none";
         document.getElementById("MinCKANButton").style.display = "none";
-        document.getElementById("MaxCKANButton").style.display = "block";
+        document.getElementById("MaxCKANButton").style.display = "block"
+
+
     };
     CKANRequest.prototype.maxResults = function () {
+        //Maximize Button in Result Window
         document.getElementById("CKAN_Results").style.display = "block";
         document.getElementById("MinCKANButton").style.display = "block";
         document.getElementById("MaxCKANButton").style.display = "none";
     };
     CKANRequest.prototype.addToMap = function (name) {
+        // Add spatial information as entities to the Cesium Map, or remove it 
         if (document.getElementsByName(name)[0].innerHTML == "+") {
             var chars = name.split("/");
 
@@ -371,7 +370,7 @@ var CKANRequest = /** @class */ (function () {
 
             }
 
-
+            //Entity Description is diisplayed in the Infobox if an entitiy is selected
             var entityDescription = '<table class="cesium-infoBox-defaultTable"><tbody>' +
                 "<tr><th>Author</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].author +
@@ -559,18 +558,19 @@ var CKANRequest = /** @class */ (function () {
         //document.getElementsByName("R"+name)[0].style.display="block";
     };
 
-    CKANRequest.prototype.openAdditionalInput=function(){
-        if(document.getElementById("additionalInput").innerHTML=="Additional Input..."){
-            document.getElementById("additionalInput").innerHTML= "Close Additional Input";
-            document.getElementById("temporalInput").style.display="block";
-        }else if(document.getElementById("additionalInput").innerHTML=="Close Additional Input"){
-            document.getElementById("additionalInput").innerHTML="Additional Input...";
-            document.getElementById("temporalInput").style.display="none";
+    CKANRequest.prototype.openAdditionalInput = function () {
+        //Temporal filters can be added to the CKAN Request
+        if (document.getElementById("additionalInput").innerHTML == "Additional Input...") {
+            document.getElementById("additionalInput").innerHTML = "Close Additional Input";
+            document.getElementById("temporalInput").style.display = "block";
+        } else if (document.getElementById("additionalInput").innerHTML == "Close Additional Input") {
+            document.getElementById("additionalInput").innerHTML = "Additional Input...";
+            document.getElementById("temporalInput").style.display = "none";
         }
-        
+
 
     }
-   
+
 
     return CKANRequest;
 }());
