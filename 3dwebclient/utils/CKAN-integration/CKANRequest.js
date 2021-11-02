@@ -1,40 +1,44 @@
 var CKANRequest = /** @class */ (function () {
     var mainGroupArray = [];
+    var setUp = false;
 
 
     function CKANRequest() {
 
     }
     CKANRequest.prototype.setUp = async function () {
-        //replace the iframe with a new div and add an EventListener to for selected Entities
-
-        var tableDiv = document.getElementById("custom_infoBoxTable")
-        if (Cesium.defined(tableDiv)) {
-            tableDiv.parentElement.removeChild(tableDiv);
-        }
-
-        tableDiv = document.createElement("div");
-
-        tableDiv.id = "custom_infoBoxTable";
-        tableDiv.className = "cesium-infoBox-description";
-        var infoBox = document.getElementsByClassName("cesium-infoBox")[0];
-        var iframeObj = document.getElementsByClassName("cesium-infoBox-iframe")[0];
-        console.log(infoBox)
-        infoBox.insertBefore(tableDiv, iframeObj);
-        iframeObj.parentNode.removeChild(iframeObj);
-
-        cesiumViewer.selectedEntityChanged.addEventListener(function (selectedEntity) {
-            if (Cesium.defined(selectedEntity)) {
-                if (Cesium.defined(selectedEntity.name)) {
-                    document.getElementsByClassName("cesium-infoBox-title")[0].innerHTML = selectedEntity.name;
-                    tableDiv.innerHTML = selectedEntity.description;
-                } else {
-                    console.log('Unknown entity selected.');
-                }
-            } else {
-                console.log('Deselected.');
+        if (setUp == false) {
+            //replace the iframe with a new div and add an EventListener to for selected Entities
+            console.log(new Date())
+            var tableDiv = document.getElementById("custom_infoBoxTable")
+            if (Cesium.defined(tableDiv)) {
+                tableDiv.parentElement.removeChild(tableDiv);
             }
-        });
+
+            tableDiv = document.createElement("div");
+
+            tableDiv.id = "custom_infoBoxTable";
+            tableDiv.className = "cesium-infoBox-description";
+            var infoBox = document.getElementsByClassName("cesium-infoBox")[0];
+            var iframeObj = document.getElementsByClassName("cesium-infoBox-iframe")[0];
+            console.log(infoBox)
+            infoBox.insertBefore(tableDiv, iframeObj);
+            iframeObj.parentNode.removeChild(iframeObj);
+
+            cesiumViewer.selectedEntityChanged.addEventListener(function (selectedEntity) {
+                if (Cesium.defined(selectedEntity)) {
+                    if (Cesium.defined(selectedEntity.name)) {
+                        document.getElementsByClassName("cesium-infoBox-title")[0].innerHTML = selectedEntity.name;
+                        tableDiv.innerHTML = selectedEntity.description;
+                    } else {
+                        console.log('Unknown entity selected.');
+                    }
+                } else {
+                    console.log('Deselected.');
+                }
+            });
+            setUp = true;
+        }
 
         //console.log(tableDiv);
         //var cesiumInfo = document.querySelectorAll('div.cesium-infoBox')[0];
@@ -53,10 +57,14 @@ var CKANRequest = /** @class */ (function () {
         east = view.east * 180 / Cesium.Math.PI;
         north = view.north * 180 / Cesium.Math.PI;
         south = view.south * 180 / Cesium.Math.PI;
+        var startdate = document.getElementById("startDate").value;
+        var enddate = document.getElementById("endDate").value;
+        //console.log(startdate);
         var url = document.getElementById('urlCKAN').value;
         var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&rows=99999999999999999";
         //console.log(packageUrl);
         var results = [];
+        var control=[];
         var groups;
         mainGroupArray = [];
         groups = await CKANRequest.prototype.getMainGroups(url);
@@ -64,7 +72,7 @@ var CKANRequest = /** @class */ (function () {
 
         CKANRequest.prototype.sendHttpRequest('GET', packageUrl).then(function (responseData) {
             //result= parseResponse(responseData);
-            console.log(responseData.result.results);
+            //console.log(responseData.result.results);
             var size = responseData.result.results.length;
             if (size == 0) {
                 document.getElementById("CKAN_Results").innerHTML = "<b> No data available</b>";
@@ -73,18 +81,31 @@ var CKANRequest = /** @class */ (function () {
                 document.getElementById("CloseCKANButton").style.display = "block";
                 document.getElementById("MinCKANButton").style.display = "block";
             }
-            console.log(responseData.result.results.length);
+            //console.log(responseData.result.results.length);
             for (var index = 0; index < responseData.result.results.length; index++) {
                 var tempUrl = url + "/api/3/action/package_show?id=" + responseData.result.results[index].id;
                 var tempResponseData = responseData;
                 //console.log(tempUrl);
                 CKANRequest.prototype.sendHttpRequest('GET', tempUrl).then(async function (responseData) {
                     //console.log(responseData.result);
+                    if (startdate != "" && enddate != "") {
+                        if (CKANRequest.prototype.compareTime(startdate, enddate, responseData.result.begin_collection_date, responseData.result.end_collection_date)) {
+                            results.push(responseData.result);
+                            control.push(responseData.result);
+                            //console.log("innerhalb");
+                        }
+                        //console.log("außerhalb");
+                        control.push(responseData.result);
+                    }
+                    else {
+                        results.push(responseData.result);
+                        control.push(responseData.result);
+                    }
 
-                    results.push(responseData.result);
+
                     //console.log(tempResponseData.result.results.length);
                     //console.log(results.length);
-                    if (results.length === tempResponseData.result.results.length) {
+                    if (control.length === tempResponseData.result.results.length) {
                         //console.log(results);
                         //console.log(url);
 
@@ -569,6 +590,51 @@ var CKANRequest = /** @class */ (function () {
         }
 
 
+    }
+    CKANRequest.prototype.compareTime = function (startdate, enddate, collectionStart, collectionEnd) {
+        if (collectionEnd == undefined) {
+            var today = new Date();
+            collectionEnd = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+        }
+        if (collectionStart == undefined||collectionStart=="") {
+            collectionStart = startdate;
+        }
+        startArray = startdate.split("-");
+        endArray = enddate.split("-");
+        collectionStartArray = collectionStart.split("-");
+        collectionEndArray = collectionEnd.split("-");
+        console.log(startArray);
+        console.log(collectionStartArray);
+        if (parseInt(startArray[0]) > parseInt(collectionStartArray[0]) || parseInt(endArray[0]) < parseInt(collectionEndArray[0])) {
+            //console.log("Startjahr später oder Endjahr früher");
+            return false;
+        }
+        if (parseInt(startArray[0]) == parseInt(collectionStartArray[0])) {
+            if (parseInt(startArray[1]) > parseInt(collectionStartArray[1])) {
+                //console.log("Startmonat später");
+                return false;
+            }
+            if (parseInt(startArray[1]) == parseInt(collectionStartArray[1])) {
+                if (parseInt(startArray[2]) > parseInt(collectionStartArray[2])) {
+                    //console.log("Starttag später");
+                    return false;
+                }
+            }
+        }
+        if (parseInt(endArray[0]) == parseInt(collectionEndArray[0])) {
+            if (parseInt(endArray[1]) < parseInt(collectionEndArray[1])) {
+                //console.log("Endmonat früher");
+                return false;
+            }
+            if (parseInt(endArray[1]) == parseInt(collectionEndArray[1])) {
+                if (parseInt(endArray[2]) < parseInt(collectionEndArray[2])) {
+                    //console.log("Endtag früher")
+                    return false;
+                }
+            }
+        }
+        //console.log("innerhalb")
+        return true;
     }
 
 
