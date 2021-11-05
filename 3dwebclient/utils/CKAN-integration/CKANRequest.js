@@ -9,7 +9,7 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.setUp = async function () {
         if (setUp == false) {
             //replace the iframe with a new div and add an EventListener to for selected Entities
-            console.log(new Date())
+
             var tableDiv = document.getElementById("custom_infoBoxTable")
             if (Cesium.defined(tableDiv)) {
                 tableDiv.parentElement.removeChild(tableDiv);
@@ -21,7 +21,7 @@ var CKANRequest = /** @class */ (function () {
             tableDiv.className = "cesium-infoBox-description";
             var infoBox = document.getElementsByClassName("cesium-infoBox")[0];
             var iframeObj = document.getElementsByClassName("cesium-infoBox-iframe")[0];
-            console.log(infoBox)
+            //console.log(infoBox)
             infoBox.insertBefore(tableDiv, iframeObj);
             iframeObj.parentNode.removeChild(iframeObj);
 
@@ -64,7 +64,7 @@ var CKANRequest = /** @class */ (function () {
         var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&rows=99999999999999999";
         //console.log(packageUrl);
         var results = [];
-        var control=[];
+        var control = [];
         var groups;
         mainGroupArray = [];
         groups = await CKANRequest.prototype.getMainGroups(url);
@@ -369,7 +369,7 @@ var CKANRequest = /** @class */ (function () {
         document.getElementById("MinCKANButton").style.display = "block";
         document.getElementById("MaxCKANButton").style.display = "none";
     };
-    CKANRequest.prototype.addToMap = function (name) {
+    CKANRequest.prototype.addToMap = async function (name) {
         // Add spatial information as entities to the Cesium Map, or remove it 
         if (document.getElementsByName(name)[0].innerHTML == "+") {
             var chars = name.split("/");
@@ -390,8 +390,27 @@ var CKANRequest = /** @class */ (function () {
                     "</td></tr>";
 
             }
+            var relationshipObjectString = "";
+            //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length);
+            for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length; index++) {
+                var id= mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].__extras.subject_package_id;
+                var connectedSubject=await CKANRequest.prototype.getDatasetRepresentation(id).then(console.log(connectedSubject));
+                
+                async function setRelationObjectString(){
+                    if (connectedSubject!=undefined){
+                        console.log("defined");
+                        relationshipObjectString+="<tr><th>Connection: "+mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].type+" as object</th><td>"+connectedSubject.title+"</td></tr>";
+                    }else{
+                        setTimeout(setRelationObjectString(),1000);
+                    }
+                    //
+                }
+                await setRelationObjectString();
+                console.log(connectedSubject);
+                
+            }
 
-            //Entity Description is diisplayed in the Infobox if an entitiy is selected
+            //Entity Description is displayed in the Infobox if an entitiy is selected
             var entityDescription = '<table class="cesium-infoBox-defaultTable"><tbody>' +
                 "<tr><th>Author</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].author +
@@ -430,6 +449,7 @@ var CKANRequest = /** @class */ (function () {
                 mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
                 "</td></tr>" +
                 resourcesString +
+                relationshipObjectString+
                 "<tr><th>Created</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].metadata_created +
                 "</td></tr>" +
@@ -596,15 +616,15 @@ var CKANRequest = /** @class */ (function () {
             var today = new Date();
             collectionEnd = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
         }
-        if (collectionStart == undefined||collectionStart=="") {
+        if (collectionStart == undefined || collectionStart == "") {
             collectionStart = startdate;
         }
         startArray = startdate.split("-");
         endArray = enddate.split("-");
         collectionStartArray = collectionStart.split("-");
         collectionEndArray = collectionEnd.split("-");
-        console.log(startArray);
-        console.log(collectionStartArray);
+        //console.log(startArray);
+        //console.log(collectionStartArray);
         if (parseInt(startArray[0]) > parseInt(collectionStartArray[0]) || parseInt(endArray[0]) < parseInt(collectionEndArray[0])) {
             //console.log("Startjahr später oder Endjahr früher");
             return false;
@@ -636,6 +656,19 @@ var CKANRequest = /** @class */ (function () {
         //console.log("innerhalb")
         return true;
     }
+
+    CKANRequest.prototype.getDatasetRepresentation = async function (id) {
+        var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+        
+        CKANRequest.prototype.sendHttpRequest('GET', url).then(function (responseData) {
+            console.log(responseData.result)
+            return responseData.result;
+        });
+        
+
+    }
+
+
 
 
     return CKANRequest;
