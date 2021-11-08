@@ -2,7 +2,6 @@ var CKANRequest = /** @class */ (function () {
     var mainGroupArray = [];
     var setUp = false;
 
-
     function CKANRequest() {
 
     }
@@ -44,8 +43,6 @@ var CKANRequest = /** @class */ (function () {
         //var cesiumInfo = document.querySelectorAll('div.cesium-infoBox')[0];
         //cesiumInfo.appendChild(tableDiv);
 
-
-
         CKANRequest.prototype.getDatasets();
     }
     CKANRequest.prototype.getDatasets = async function () {
@@ -70,130 +67,125 @@ var CKANRequest = /** @class */ (function () {
         groups = await CKANRequest.prototype.getMainGroups(url);
 
 
-        CKANRequest.prototype.sendHttpRequest('GET', packageUrl).then(function (responseData) {
-            //result= parseResponse(responseData);
-            //console.log(responseData.result.results);
-            var size = responseData.result.results.length;
-            if (size == 0) {
-                document.getElementById("CKAN_Results").innerHTML = "<b> No data available</b>";
-                document.getElementById("CKAN_Results").style.display = "block";
-                document.getElementById("ResultWindow").style.display = "block";
-                document.getElementById("CloseCKANButton").style.display = "block";
-                document.getElementById("MinCKANButton").style.display = "block";
+        var datasets = fetch(packageUrl).then((resp) => resp.json()).then(function (data) {
+            return data.result;
+        })
+            .catch(function (error) {
+                console.log(error);
+            });
+        //result= parseResponse(responseData);
+        //console.log(responseData.result.results);
+        var data = await datasets;
+        var size = data.results.length;
+        if (size == 0) {
+            document.getElementById("CKAN_Results").innerHTML = "<b> No data available</b>";
+            document.getElementById("CKAN_Results").style.display = "block";
+            document.getElementById("ResultWindow").style.display = "block";
+            document.getElementById("CloseCKANButton").style.display = "block";
+            document.getElementById("MinCKANButton").style.display = "block";
+        }
+        //console.log(responseData.result.results.length);
+        for (var index = 0; index < data.results.length; index++) {
+            var tempUrl = url + "/api/3/action/package_show?id=" + data.results[index].id;
+            var tempResponseData = data;
+            //console.log(tempUrl);
+            var result = fetch(tempUrl).then((resp) => resp.json()).then(function (data) {
+                return data.result;
+            }).catch(function (error) {
+                console.log(error);
+            });
+            var res = await result;
+            //console.log(responseData.result);
+            if (startdate != "" && enddate != "") {
+                if (CKANRequest.prototype.compareTime(startdate, enddate, res.begin_collection_date, res.end_collection_date)) {
+                    results.push(res);
+                    control.push(res);
+                    //console.log("innerhalb");
+                }
+                //console.log("außerhalb");
+                control.push(res);
             }
-            //console.log(responseData.result.results.length);
-            for (var index = 0; index < responseData.result.results.length; index++) {
-                var tempUrl = url + "/api/3/action/package_show?id=" + responseData.result.results[index].id;
-                var tempResponseData = responseData;
-                //console.log(tempUrl);
-                CKANRequest.prototype.sendHttpRequest('GET', tempUrl).then(async function (responseData) {
-                    //console.log(responseData.result);
-                    if (startdate != "" && enddate != "") {
-                        if (CKANRequest.prototype.compareTime(startdate, enddate, responseData.result.begin_collection_date, responseData.result.end_collection_date)) {
-                            results.push(responseData.result);
-                            control.push(responseData.result);
-                            //console.log("innerhalb");
-                        }
-                        //console.log("außerhalb");
-                        control.push(responseData.result);
-                    }
-                    else {
-                        results.push(responseData.result);
-                        control.push(responseData.result);
-                    }
+            else {
+                results.push(res);
+                control.push(res);
+            }
+        }
+
+        //console.log(tempResponseData.result.results.length);
+        console.log(results);
+
+        //console.log(url);
+
+        //groups = await CKANRequest.prototype.getMainGroups(url);
+
+        async function setGroups() {
+            if (groups != undefined) {
+                if (groups.length == 0) {
+                    setTimeout(setGroups, 1000);
+                } else {
+                    //console.log(groups.length);
+                    //
+                    //console.log("loop")
+                    //var text = "<dl>";
 
 
-                    //console.log(tempResponseData.result.results.length);
-                    //console.log(results.length);
-                    if (control.length === tempResponseData.result.results.length) {
-                        //console.log(results);
-                        //console.log(url);
-
-                        //groups = await CKANRequest.prototype.getMainGroups(url);
-
-                        async function setGroups() {
-                            if (groups != undefined) {
-                                if (groups.length == 0) {
-                                    setTimeout(setGroups, 1000);
-                                } else {
-                                    //console.log(groups.length);
-                                    //
-                                    //console.log("loop")
-                                    //var text = "<dl>";
-
-
-                                    for (let i = 0; i < groups.length; i++) {
-                                        var tempDatasetArr = [];
-                                        //text = text + "<dt>" + groups[i] + "</dt>";
-                                        for (let j = 0; j < results.length; j++) {
-                                            //console.log(results[j]);
-                                            for (let k = 0; k < results[j].groups.length; k++) {
-                                                if (results[j].groups[k].display_name === groups[i]) {
-                                                    //text = text + "<dd>" + results[j].title + "</dd>";
-                                                    tempDatasetArr.push(results[j]);
-                                                }
-
-                                            }
-
-                                        }
-                                        var tempGr = new MainGroup(groups[i], tempDatasetArr);
-                                        mainGroupArray.push(tempGr);
-                                    }
-
-                                    //text = text + "</dl>";
-
-                                    //x.innerHTML = text;
-                                    //x.style.display = "block";
+                    for (let i = 0; i < groups.length; i++) {
+                        var tempDatasetArr = [];
+                        //text = text + "<dt>" + groups[i] + "</dt>";
+                        for (let j = 0; j < results.length; j++) {
+                            //console.log(results[j]);
+                            for (let k = 0; k < results[j].groups.length; k++) {
+                                if (results[j].groups[k].display_name === groups[i]) {
+                                    //text = text + "<dd>" + results[j].title + "</dd>";
+                                    tempDatasetArr.push(results[j]);
                                 }
-                            } else {
-                                setTimeout(setGroups, 1000);
-                            }
-                        }
-                        await setGroups().then(console.log(mainGroupArray));
-                        //console.log(mainGroupArray);
-                        var x = document.getElementById("CKAN_Results");
-                        var text = "";
 
-
-                        for (let i = 0; i < mainGroupArray.length; i++) {
-                            if (mainGroupArray[i].datasetArray.length > 0) {
-                                text = text + "<b>" + mainGroupArray[i].name + "</b>";
-
-                                for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
-                                    if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
-                                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
-                                    } else {
-                                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
-                                    }
-                                }
-                                //text=text+"<br>";
                             }
 
                         }
-
-                        //text = text + "</ul>";
-                        x.innerHTML = text;
-                        x.style.display = "block";
-                        document.getElementById("ResultWindow").style.display = "block";
-                        document.getElementById("CloseCKANButton").style.display = "block";
-                        document.getElementById("MinCKANButton").style.display = "block";
-
-
+                        var tempGr = new MainGroup(groups[i], tempDatasetArr);
+                        mainGroupArray.push(tempGr);
                     }
 
+                    //text = text + "</dl>";
 
-                });
+                    //x.innerHTML = text;
+                    //x.style.display = "block";
+                }
+            } else {
+                setTimeout(setGroups, 1000);
+            }
+        }
+        await setGroups().then(console.log(mainGroupArray));
+        //console.log(mainGroupArray);
+        var x = document.getElementById("CKAN_Results");
+        var text = "";
 
+
+        for (let i = 0; i < mainGroupArray.length; i++) {
+            if (mainGroupArray[i].datasetArray.length > 0) {
+                text = text + "<b>" + mainGroupArray[i].name + "</b>";
+
+                for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
+                    if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
+                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
+                    } else {
+                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
+                    }
+                }
+                //text=text+"<br>";
             }
 
-        });
+        }
 
-        //console.log(results.length);
+        //text = text + "</ul>";
+        x.innerHTML = text;
+        x.style.display = "block";
+        document.getElementById("ResultWindow").style.display = "block";
+        document.getElementById("CloseCKANButton").style.display = "block";
+        document.getElementById("MinCKANButton").style.display = "block";
 
-
-
-
-        //console.log(view);
+       
         /*
         const dataPointNW = { longitude: view.west * 180 / Cesium.Math.PI, latitude: view.north * 180 / Cesium.Math.PI, height: 0 };
         //console.log(dataPointNW);
@@ -249,52 +241,42 @@ var CKANRequest = /** @class */ (function () {
         // Use CKAN API to get MainGroups of Catalog
         var groups = [];
         var mainGroups = [];
-        var count = 0;
-        var l = 100;
+
+
         //console.log(url);
         var groupListURL = url + "/api/3/action/group_list";
         //console.log(groupListURL);
-        await CKANRequest.prototype.sendHttpRequest('GET', groupListURL).then(function (responseData) {
-            var result = responseData.result;
-            l = result.length;
-            for (let index = 0; index < result.length; index++) {
-                groups[groups.length] = result[index];
-                var tempGroupURL = url + "/api/3/action/group_show?id=" + result[index];
-                //console.log(tempGroupURL);
+        var grouplist = fetch(groupListURL).then((resp) => resp.json()).then(function (data) {
+            return data.result;
+        }).catch(function (error) {
+            console.log(error);
+        });
+        var result = await grouplist;
+        l = result.length;
+        for (let index = 0; index < result.length; index++) {
+            groups[groups.length] = result[index];
+            var tempGroupURL = url + "/api/3/action/group_show?id=" + result[index];
+            //console.log(tempGroupURL);
 
-                CKANRequest.prototype.sendHttpRequest('GET', tempGroupURL).then(function (response) {
-                    count++;
-                    //console.log(result.length);
-                    if (response.result.groups[0] != undefined) {
-                        if (response.result.groups[0].name === "main-categories") {
-                            mainGroups.push(response.result.display_name);
+            var mainGroup = fetch(tempGroupURL).then((resp) => resp.json()).then(function (data) {
+                return data.result;
+            }).catch(function (error) {
+                console.log(error);
+            });
+            var main = await mainGroup;
+            //console.log(result.length);
+            if (main.groups[0] != undefined) {
+                if (main.groups[0].name === "main-categories") {
+                    mainGroups.push(main.display_name);
 
-                        }
-
-                    }
-                    if (count == l) {
-                        //console.log(mainGroups)
-                        return mainGroups;
-                    }
-                });
-
+                }
 
             }
 
 
-        });/*
-        var check = function () {
-            if (count === l) {
-                console.log("C");
 
-            } else {
-                setTimeout(check, 1000);
-                console.log("T");
-            }
+
         }
-        check();
-
-        console.log(mainGroups.length);*/
         return mainGroups;
 
 
@@ -306,7 +288,7 @@ var CKANRequest = /** @class */ (function () {
             if (groups.length === 0) {
                 groups.push(g);
                 //console.log(g);
-
+    
             }
             else {
                 for (let index2 = 0; index2 < groups.length; index2++) {
@@ -319,7 +301,7 @@ var CKANRequest = /** @class */ (function () {
                     groups.push(g);
                 }
             }
-
+    
         }*/
         //return groups;
     };
@@ -393,21 +375,21 @@ var CKANRequest = /** @class */ (function () {
             var relationshipObjectString = "";
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length);
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length; index++) {
-                var id= mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].__extras.subject_package_id;
-                var connectedSubject=await CKANRequest.prototype.getDatasetRepresentation(id).then(console.log(connectedSubject));
-                
-                async function setRelationObjectString(){
-                    if (connectedSubject!=undefined){
-                        console.log("defined");
-                        relationshipObjectString+="<tr><th>Connection: "+mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].type+" as object</th><td>"+connectedSubject.title+"</td></tr>";
-                    }else{
-                        setTimeout(setRelationObjectString(),1000);
-                    }
-                    //
+                var id = mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].__extras.subject_package_id;
+                var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+                var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
+                    return data.result;
+                }).catch(function (error) {
+                    console.log(error);
+                });
+                var connData = await dataset;
+                //console.log(connData);
+                if (connData != undefined) {
+                    //console.log("defined");
+                    relationshipObjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].type + " as object</th><td>" + connData.title + "</td></tr>";
                 }
-                await setRelationObjectString();
-                console.log(connectedSubject);
-                
+
+
             }
 
             //Entity Description is displayed in the Infobox if an entitiy is selected
@@ -449,7 +431,7 @@ var CKANRequest = /** @class */ (function () {
                 mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
                 "</td></tr>" +
                 resourcesString +
-                relationshipObjectString+
+                relationshipObjectString +
                 "<tr><th>Created</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].metadata_created +
                 "</td></tr>" +
@@ -656,20 +638,6 @@ var CKANRequest = /** @class */ (function () {
         //console.log("innerhalb")
         return true;
     }
-
-    CKANRequest.prototype.getDatasetRepresentation = async function (id) {
-        var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
-        
-        CKANRequest.prototype.sendHttpRequest('GET', url).then(function (responseData) {
-            console.log(responseData.result)
-            return responseData.result;
-        });
-        
-
-    }
-
-
-
 
     return CKANRequest;
 }());
