@@ -388,8 +388,23 @@ var CKANRequest = /** @class */ (function () {
                     //console.log("defined");
                     relationshipObjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].type + " as object</th><td>" + connData.title + "</td></tr>";
                 }
-
-
+            }
+            var relationshipSubjectString = "";
+            //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length);
+            for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_subject.length; index++) {
+                var id = mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_subject[index].__extras.object_package_id;
+                var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+                var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
+                    return data.result;
+                }).catch(function (error) {
+                    console.log(error);
+                });
+                var connData = await dataset;
+                //console.log(connData);
+                if (connData != undefined) {
+                    //console.log("defined");
+                    relationshipSubjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_subject[index].type + " as subject</th><td>" + connData.title + "</td></tr>";
+                }
             }
 
             //Entity Description is displayed in the Infobox if an entitiy is selected
@@ -431,7 +446,8 @@ var CKANRequest = /** @class */ (function () {
                 mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
                 "</td></tr>" +
                 resourcesString +
-                relationshipObjectString +
+                relationshipSubjectString+
+                relationshipObjectString +              
                 "<tr><th>Created</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].metadata_created +
                 "</td></tr>" +
