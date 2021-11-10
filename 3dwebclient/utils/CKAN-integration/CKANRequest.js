@@ -6,7 +6,7 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.setUp = async function () {
-        
+        //make all entities invisible
         var entities = cesiumViewer.entities;
         //console.log(entities._entities._array.length);
         if (entities._entities._array.length > 0) {
@@ -25,6 +25,7 @@ var CKANRequest = /** @class */ (function () {
         }
         entities.show = !entities.show;
         
+        //if called the first time replace the iframe with a new div
         if (setUp == false) {
             //replace the iframe with a new div and add an EventListener to for selected Entities
 
@@ -68,6 +69,8 @@ var CKANRequest = /** @class */ (function () {
         // Communication to the CKAN API,  filling the ResultWindow with the Catalog Entries
         var cam = cesiumCamera;
         var camPos = cam.positionCartographic;
+
+        //get all input information
         var view = cam.computeViewRectangle(Cesium.Ellipsoid.WGS84);
         west = view.west * 180 / Cesium.Math.PI;
         east = view.east * 180 / Cesium.Math.PI;
@@ -78,14 +81,14 @@ var CKANRequest = /** @class */ (function () {
         //console.log(startdate);
         var url = document.getElementById('urlCKAN').value;
         var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&rows=99999999999999999";
-        //console.log(packageUrl);
-        var results = [];
-        var control = [];
+        
+        var results = []; //all results fitting the input parameters
+        
         var groups;
         mainGroupArray = [];
         groups = await CKANRequest.prototype.getMainGroups(url);
 
-
+        //all datasets matching the url query
         var datasets = fetch(packageUrl).then((resp) => resp.json()).then(function (data) {
             return data.result;
         })
@@ -96,6 +99,7 @@ var CKANRequest = /** @class */ (function () {
         //console.log(responseData.result.results);
         var data = await datasets;
         var size = data.results.length;
+        // if no data is available
         if (size == 0) {
             document.getElementById("CKAN_Results").innerHTML = "<b> No data available</b>";
             document.getElementById("CKAN_Results").style.display = "block";
@@ -103,7 +107,9 @@ var CKANRequest = /** @class */ (function () {
             document.getElementById("CloseCKANButton").style.display = "block";
             document.getElementById("MinCKANButton").style.display = "block";
         }
-        //console.log(responseData.result.results.length);
+        
+
+        // get full representations of the datasets
         for (var index = 0; index < data.results.length; index++) {
             var tempUrl = url + "/api/3/action/package_show?id=" + data.results[index].id;
             var tempResponseData = data;
@@ -115,18 +121,20 @@ var CKANRequest = /** @class */ (function () {
             });
             var res = await result;
             //console.log(responseData.result);
+
+            //control if date is inside the set input temporal parameters
             if (startdate != "" && enddate != "") {
                 if (CKANRequest.prototype.compareTime(startdate, enddate, res.begin_collection_date, res.end_collection_date)) {
                     results.push(res);
-                    control.push(res);
+                    
                     //console.log("innerhalb");
                 }
                 //console.log("außerhalb");
-                control.push(res);
+                
             }
             else {
                 results.push(res);
-                control.push(res);
+                
             }
         }
 
@@ -137,6 +145,7 @@ var CKANRequest = /** @class */ (function () {
 
         //groups = await CKANRequest.prototype.getMainGroups(url);
 
+        //group results according to the MainGroups
         async function setGroups() {
             if (groups != undefined) {
                 if (groups.length == 0) {
@@ -180,7 +189,7 @@ var CKANRequest = /** @class */ (function () {
         var x = document.getElementById("CKAN_Results");
         var text = "";
 
-
+        // fill the result window
         for (let i = 0; i < mainGroupArray.length; i++) {
             if (mainGroupArray[i].datasetArray.length > 0) {
                 text = text + "<b>" + mainGroupArray[i].name + "</b>";
@@ -324,6 +333,7 @@ var CKANRequest = /** @class */ (function () {
         }*/
         //return groups;
     };
+    /*
     CKANRequest.prototype.sendHttpRequest = function (method, url, data) {
         //HTTPRequest function
         var promise = new Promise(function (resolve, reject) {
@@ -348,6 +358,7 @@ var CKANRequest = /** @class */ (function () {
         });
         return promise;
     };
+    */
     CKANRequest.prototype.closeResults = function () {
         //Close Button in Result Window
         document.getElementById("ResultWindow").style.display = "none";
@@ -375,15 +386,16 @@ var CKANRequest = /** @class */ (function () {
         var entities = cesiumViewer.entities;
         entities.show = true;
         if (document.getElementsByName(name)[0].innerHTML == "+") {
+            //split name to get information on which dataset should be added
             var chars = name.split("/");
 
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
             document.getElementsByName(name)[0].innerHTML = "-";
-            var groupstring = "";
+            var groupstring = ""; // parse groupArray
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].groups.length; index++) {
                 groupstring = groupstring + mainGroupArray[chars[0]].datasetArray[chars[1]].groups[index].display_name + ", ";
             }
-
+            // Remove last comma
             groupstring = groupstring.substring(0, groupstring.length - 2);
 
             var resourcesString = '';
@@ -483,12 +495,16 @@ var CKANRequest = /** @class */ (function () {
             //var infoBoxDescription=tableElement.querySelectorAll('div.cesium-infoBox-description')[0];
 
             //infoBoxDescription.innerHTML=entityDescription;
+
+            //if entity is already created only make it visible
             if (cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title) != undefined) {
                 var entity = cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
                 entity.show = !entity.show;
                 cesiumViewer.flyTo(cesiumViewer.entities);
                 return;
             }
+
+            //parse spatial attribute
             var spatial = mainGroupArray[chars[0]].datasetArray[chars[1]].spatial;
             spatial = spatial.replace(/\s+/g, '');
             //console.log(spatial);
@@ -496,7 +512,7 @@ var CKANRequest = /** @class */ (function () {
             var type = splitspatial[1];
             var coordinateArray = splitspatial.join(",").split('"coordinates":')[1].split('],[');
             //console.log(type);
-            if (type == '"Point"' | type == ' "Point"') {
+            if (type == '"Point"' || type == ' "Point"') {
                 //console.log("Point!");
                 coordinateArray = coordinateArray.join(";");
                 coordinateArray = coordinateArray.substring(1, coordinateArray.length - 2).split(",");
@@ -520,7 +536,7 @@ var CKANRequest = /** @class */ (function () {
             }
             if (type == '"MultiPolygon"') {
                 //console.log("Polygon!");
-                var multi = spatial.indexOf("]]],[[[");
+                var multi = spatial.indexOf("]]],[[["); //if there are more than one polygon multi will be !=-1
                 //console.log(coordinateArray);
                 //console.log(multi);
                 if (multi != -1) {
@@ -575,7 +591,7 @@ var CKANRequest = /** @class */ (function () {
 
 
                 }
-                else {
+                else { //polygon with holes
                     coordinateArray = coordinateArray.join(",");
                     coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
                     //coordinateArray.split(",");
