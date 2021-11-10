@@ -17,6 +17,12 @@ var CKANRequest = /** @class */ (function () {
                 
             }
         }
+        for (let index = 0; index < entities._entities._array.length; index++) {
+            if(entities._entities._array[index].show=true){
+                entities._entities._array[index].show=false;
+            }
+            
+        }
         entities.show = !entities.show;
         
         if (setUp == false) {
