@@ -6,6 +6,19 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.setUp = async function () {
+        
+        var entities = cesiumViewer.entities;
+        //console.log(entities._entities._array.length);
+        if (entities._entities._array.length > 0) {
+            var x = document.getElementById("CKAN_Results");
+            var but=x.getElementsByClassName("cesium-button");
+            for (let index = 0; index < but.length; index++) {
+                but[index].innerHTML="+";
+                
+            }
+        }
+        entities.show = !entities.show;
+        
         if (setUp == false) {
             //replace the iframe with a new div and add an EventListener to for selected Entities
 
@@ -185,7 +198,7 @@ var CKANRequest = /** @class */ (function () {
         document.getElementById("CloseCKANButton").style.display = "block";
         document.getElementById("MinCKANButton").style.display = "block";
 
-       
+
         /*
         const dataPointNW = { longitude: view.west * 180 / Cesium.Math.PI, latitude: view.north * 180 / Cesium.Math.PI, height: 0 };
         //console.log(dataPointNW);
@@ -353,6 +366,8 @@ var CKANRequest = /** @class */ (function () {
     };
     CKANRequest.prototype.addToMap = async function (name) {
         // Add spatial information as entities to the Cesium Map, or remove it 
+        var entities = cesiumViewer.entities;
+        entities.show = true;
         if (document.getElementsByName(name)[0].innerHTML == "+") {
             var chars = name.split("/");
 
@@ -446,8 +461,8 @@ var CKANRequest = /** @class */ (function () {
                 mainGroupArray[chars[0]].datasetArray[chars[1]].num_resources +
                 "</td></tr>" +
                 resourcesString +
-                relationshipSubjectString+
-                relationshipObjectString +              
+                relationshipSubjectString +
+                relationshipObjectString +
                 "<tr><th>Created</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].metadata_created +
                 "</td></tr>" +
