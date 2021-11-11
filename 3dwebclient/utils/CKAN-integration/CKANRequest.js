@@ -11,20 +11,24 @@ var CKANRequest = /** @class */ (function () {
         //console.log(entities._entities._array.length);
         if (entities._entities._array.length > 0) {
             var x = document.getElementById("CKAN_Results");
-            var but=x.getElementsByClassName("cesium-button");
+            var but = x.getElementsByClassName("cesium-button");
             for (let index = 0; index < but.length; index++) {
-                but[index].innerHTML="+";
-                
+                but[index].innerHTML = "+";
+
             }
         }
         for (let index = 0; index < entities._entities._array.length; index++) {
-            if(entities._entities._array[index].show=true){
-                entities._entities._array[index].show=false;
+            if (entities._entities._array[index].show = true) {
+                entities._entities._array[index].show = false;
             }
-            
+
         }
         entities.show = !entities.show;
-        
+
+        document.getElementById("CKAN_Results").innerHTML = "<b> Loading data...</b>";
+        document.getElementById("CKAN_Results").style.display = "block";
+        document.getElementById("ResultWindow").style.display = "block";
+
         //if called the first time replace the iframe with a new div
         if (setUp == false) {
             //replace the iframe with a new div and add an EventListener to for selected Entities
@@ -81,9 +85,9 @@ var CKANRequest = /** @class */ (function () {
         //console.log(startdate);
         var url = document.getElementById('urlCKAN').value;
         var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&rows=99999999999999999";
-        
+
         var results = []; //all results fitting the input parameters
-        
+
         var groups;
         mainGroupArray = [];
         groups = await CKANRequest.prototype.getMainGroups(url);
@@ -107,7 +111,7 @@ var CKANRequest = /** @class */ (function () {
             document.getElementById("CloseCKANButton").style.display = "block";
             document.getElementById("MinCKANButton").style.display = "block";
         }
-        
+
 
         // get full representations of the datasets
         for (var index = 0; index < data.results.length; index++) {
@@ -126,15 +130,15 @@ var CKANRequest = /** @class */ (function () {
             if (startdate != "" && enddate != "") {
                 if (CKANRequest.prototype.compareTime(startdate, enddate, res.begin_collection_date, res.end_collection_date)) {
                     results.push(res);
-                    
+
                     //console.log("innerhalb");
                 }
                 //console.log("außerhalb");
-                
+
             }
             else {
                 results.push(res);
-                
+
             }
         }
 
