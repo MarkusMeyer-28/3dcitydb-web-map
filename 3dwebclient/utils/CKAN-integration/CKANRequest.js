@@ -419,7 +419,7 @@ var CKANRequest = /** @class */ (function () {
                 //console.log(connData);
                 if (connData != undefined) {
                     //console.log("defined");
-                    relationshipObjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].type + " as object</th><td>" + connData.title + "</td></tr>";
+                    relationshipObjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].type + " as object</th><td><button type='button' class='cesium-button'>" + connData.title + "</button></td></tr>";
                 }
             }
             var relationshipSubjectString = "";
