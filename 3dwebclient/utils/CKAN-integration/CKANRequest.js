@@ -1,6 +1,8 @@
 var CKANRequest = /** @class */ (function () {
     var mainGroupArray = [];
     var setUp = false;
+    var connDataArray = [];
+    var connDataCount = 0;
 
     function CKANRequest() {
 
@@ -423,7 +425,10 @@ var CKANRequest = /** @class */ (function () {
                 //console.log(connData);
                 if (connData != undefined) {
                     //console.log("defined");
-                    relationshipObjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].type + " as object</th><td><button type='button' class='cesium-button'>" + connData.title + "</button></td></tr>";
+                    connDataArray.push(connData);
+
+                    relationshipObjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object[index].type + " as object</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connData.title + "</button></td></tr>";
+                    connDataCount++;
                 }
             }
             var relationshipSubjectString = "";
@@ -440,7 +445,9 @@ var CKANRequest = /** @class */ (function () {
                 //console.log(connData);
                 if (connData != undefined) {
                     //console.log("defined");
-                    relationshipSubjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_subject[index].type + " as subject</th><td>" + connData.title + "</td></tr>";
+                    connDataArray.push(connData);
+                    relationshipSubjectString += "<tr><th>Connection: " + mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_subject[index].type + " as subject</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connData.title + "</button></td></tr>";
+                    connDataCount++;
                 }
             }
 
@@ -694,6 +701,131 @@ var CKANRequest = /** @class */ (function () {
         }
         //console.log("innerhalb")
         return true;
+    }
+
+    CKANRequest.prototype.showConnection = async function (ind) {
+
+
+        var connData = connDataArray[ind];
+        var groupstring = ""; // parse groupArray
+
+        for (let index = 0; index < connData.groups.length; index++) {
+            groupstring = groupstring + connData.groups[index].display_name + ", ";
+        }
+        // Remove last comma
+        groupstring = groupstring.substring(0, groupstring.length - 2);
+
+        var resourcesString = '';
+        for (let index = 0; index < connData.resources.length; index++) {
+            resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
+                connData.resources[index].url + "' target='_blank'>" + connData.resources[index].url + "</a>" +
+                "</td></tr>";
+
+        }
+        var relationshipObjectString = "";
+
+
+        for (let index = 0; index < connData.relationships_as_object.length; index++) {
+            var id = connData.relationships_as_object[index].__extras.subject_package_id;
+            var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+            var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
+                return data.result;
+            }).catch(function (error) {
+                console.log(error);
+            });
+
+            var connDataNew = await dataset;
+            //console.log(connData);
+
+            if (connDataNew != undefined) {
+                //console.log("defined");
+                connDataArray.push(connDataNew);
+                relationshipObjectString += "<tr><th>Connection: " + connData.relationships_as_object[index].type + " as object</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connDataNew.title + "</button></td></tr>";
+                connDataCount++;
+            }
+        }
+
+        var relationshipSubjectString = "";
+        for (let index = 0; index < connData.relationships_as_subject.length; index++) {
+            var id = connData.relationships_as_subject[index].__extras.object_package_id;
+            var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+            var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
+                return data.result;
+            }).catch(function (error) {
+                console.log(error);
+            });
+
+            var connDataNew = await dataset;
+            //console.log(connData);
+            if (connData != undefined) {
+                connDataArray.push(connDataNew);
+                relationshipSubjectString += "<tr><th>Connection: " + connData.relationships_as_subject[index].type + " as subject</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connDataNew.title + "</button></td></tr>";
+                connDataCount++;
+            }
+
+        }
+        console.log("test");
+        var connInfo = document.getElementById("ConnectionInfo");
+        console.log(document.getElementById("ConnectionTitle"));
+        document.getElementById("ConnectionTitle").innerHTML = connData.title;
+        console.log("test");
+        document.getElementById("connTable").innerHTML = '<tbody>' +
+            "<tr><th>Author</th><td>" +
+            connData.author +
+            "</td></tr>" +
+            "<tr><th>Maintainer</th><td>" +
+            connData.maintainer +
+            "</td></tr>" +
+            "<tr><th>Title</th><td>" +
+            connData.title +
+            "</td></tr>" +
+            "<tr><th>Language</th><td>" +
+            connData.language +
+            "</td></tr>" +
+            "<tr><th>ID</th><td>" +
+            connData.id +
+            "</td></tr>" +
+            "<tr><th>Type</th><td>" +
+            connData.type +
+            "</td></tr>" +
+            "<tr><th>State</th><td>" +
+            connData.state +
+            "</td></tr>" +
+            "<tr><th>Is Open</th><td>" +
+            connData.isopen +
+            "</td></tr>" +
+            "<tr><th>Organization</th><td>" +
+            connData.title +
+            "</td></tr>" +
+            "<tr><th>Groups</th><td>" +
+            groupstring +
+            "</td></tr>" +
+            "<tr><th>URL</th><td>" +
+            connData.url +
+            "</td></tr>" +
+            "<tr><th>Num Resources</th><td>" +
+            connData.num_resources +
+            "</td></tr>" +
+            resourcesString +
+            relationshipSubjectString +
+            relationshipObjectString +
+            "<tr><th>Created</th><td>" +
+            connData.metadata_created +
+            "</td></tr>" +
+            "<tr><th>Last Modified</th><td>" +
+            connData.metadata_modified +
+            "</td></tr>" +
+            "<tr><th>Notes</th><td>" +
+            connData.notes +
+            "</td></tr>" +
+            "</tbody>";
+        console.log("test");
+        connInfo.style.display = "block";
+        console.log(connInfo);
+
+    }
+    CKANRequest.prototype.closeConnectionWindow= function (){
+        document.getElementById("ConnectionInfo").style.display="none";
     }
 
     return CKANRequest;

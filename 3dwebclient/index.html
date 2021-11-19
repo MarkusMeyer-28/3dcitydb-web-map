@@ -230,7 +230,7 @@
             left: 0pt;
             font-family: "Arial";
             z-index: 99980;
-            width: 160pt;
+            width: 100%;
         }
 
         #CKAN_Button {
@@ -351,6 +351,32 @@
             overflow-x: auto;
             max-height: 550px;
 
+        }
+        #ConnectionInfo{
+           
+            max-height: 460px;
+            min-height: 460px;
+            display: none;
+            position: absolute;
+            min-width: 300px;
+            max-width:300px ;
+            right: 500px;
+            top: 180px;
+            z-index: 9001;
+            
+            color: rgb(255, 255, 255);
+            
+            
+        }
+        #custom_connectionTable{
+            overflow-y: auto;
+            overflow-x: auto;
+            max-height: 419px;
+            min-height: 419px;
+            min-width: 276px;
+            max-width:276px ;
+            background: rgba(42, 42, 42, 0.9);
+            border: 2px #505050 solid;
         }
     </style>
 </head>
@@ -790,6 +816,13 @@
                 </p>
             </div>
 
+        </div>
+        <div id="ConnectionInfo">
+            <div id ="ConnectionTitle" class="cesium-infoBox-title">Test</div>
+            <button type="button" class= "cesium-infoBox-close" onclick="CKANRequest.prototype.closeConnectionWindow()">×</button>
+            <div id="custom_connectionTable" class="cesium-infoBox-description">
+                <table id="connTable" class="cesium-infoBox-defaultTable"></table>    
+            </div>
         </div>
 
 
