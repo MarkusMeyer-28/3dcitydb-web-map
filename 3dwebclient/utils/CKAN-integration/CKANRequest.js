@@ -764,11 +764,44 @@ var CKANRequest = /** @class */ (function () {
             }
 
         }
-        console.log("test");
+        
         var connInfo = document.getElementById("ConnectionInfo");
-        console.log(document.getElementById("ConnectionTitle"));
+        
         document.getElementById("ConnectionTitle").innerHTML = connData.title;
-        console.log("test");
+        var spatialString="";
+        var ind="";
+        if (connData.spatial!=""){
+            var exists=false;
+            for (let i = 0; i < mainGroupArray.length; i++) {
+                for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
+                    if(connData.id==mainGroupArray[i].datasetArray[j].id){
+                        exists=true;
+                        ind=`${i}/${j}`;
+                        break;
+                    }
+                }
+                if(exists){
+                    break;
+                }
+            }
+            if (exists){
+                var name=ind+"/"+connData.title;
+                console.log(name)
+                if(document.getElementsByName(name)[0].innerHTML=="+"){
+                    spatialString="<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='"+name+"' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>+</button></td></tr>";
+                    //CKANRequest.prototype.addToMap(name);  
+                }
+                else{
+                    spatialString="<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='"+name+"' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>-</button></td></tr>";
+                    //entity ist bereits im Viewer sichtbar
+                } 
+            }
+            else{
+                var spatial=connData.spatial;
+                console.log(spatial)
+            }
+            
+        }
         document.getElementById("connTable").innerHTML = '<tbody>' +
             "<tr><th>Author</th><td>" +
             connData.author +
@@ -809,6 +842,7 @@ var CKANRequest = /** @class */ (function () {
             resourcesString +
             relationshipSubjectString +
             relationshipObjectString +
+            spatialString+
             "<tr><th>Created</th><td>" +
             connData.metadata_created +
             "</td></tr>" +
@@ -826,6 +860,14 @@ var CKANRequest = /** @class */ (function () {
     }
     CKANRequest.prototype.closeConnectionWindow= function (){
         document.getElementById("ConnectionInfo").style.display="none";
+    }
+    CKANRequest.prototype.spatialPlusMinus=function(){
+        if(document.getElementById("ConnectionSpatialAdd").innerHTML=="+"){
+            document.getElementById("ConnectionSpatialAdd").innerHTML="-";
+        }
+        else{
+            document.getElementById("ConnectionSpatialAdd").innerHTML="+";
+        }
     }
 
     return CKANRequest;
