@@ -180,6 +180,9 @@ var CKANRequest = /** @class */ (function () {
                         var tempGr = new MainGroup(groups[i], tempDatasetArr);
                         mainGroupArray.push(tempGr);
                     }
+                    var addedDataArray = []
+                    var addedGroup = new MainGroup("Extra Datasets", addedDataArray)
+                    mainGroupArray.push(addedGroup);
 
                     //text = text + "</dl>";
 
@@ -192,83 +195,9 @@ var CKANRequest = /** @class */ (function () {
         }
         await setGroups().then(console.log(mainGroupArray));
         //console.log(mainGroupArray);
-        var x = document.getElementById("CKAN_Results");
-        var text = "";
+        CKANRequest.prototype.refreshResultWindow();
+        
 
-        // fill the result window
-        for (let i = 0; i < mainGroupArray.length; i++) {
-            if (mainGroupArray[i].datasetArray.length > 0) {
-                text = text + "<b>" + mainGroupArray[i].name + "</b>";
-
-                for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
-                    if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
-                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
-                    } else {
-                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
-                    }
-                }
-                //text=text+"<br>";
-            }
-
-        }
-
-        //text = text + "</ul>";
-        x.innerHTML = text;
-        x.style.display = "block";
-        document.getElementById("ResultWindow").style.display = "block";
-        document.getElementById("CloseCKANButton").style.display = "block";
-        document.getElementById("MinCKANButton").style.display = "block";
-
-
-        /*
-        const dataPointNW = { longitude: view.west * 180 / Cesium.Math.PI, latitude: view.north * 180 / Cesium.Math.PI, height: 0 };
-        //console.log(dataPointNW);
-        const pointEntityNW = cesiumViewer.entities.add({
-            description: `NW`,
-            position: Cesium.Cartesian3.fromDegrees(dataPointNW.longitude, dataPointNW.latitude, dataPointNW.height),
-            point: { pixelSize: 20, color: Cesium.Color.RED }
-        });
-        const dataPointNE = { longitude: view.east * 180 / Cesium.Math.PI, latitude: view.north * 180 / Cesium.Math.PI, height: 0 };
-        //console.log(dataPointNW);
-        const pointEntityNE = cesiumViewer.entities.add({
-            description: `NE`,
-            position: Cesium.Cartesian3.fromDegrees(dataPointNE.longitude, dataPointNE.latitude, dataPointNE.height),
-            point: { pixelSize: 20, color: Cesium.Color.RED }
-        });
-        const dataPointSW = { longitude: view.west * 180 / Cesium.Math.PI, latitude: view.south * 180 / Cesium.Math.PI, height: 0 };
-        //console.log(dataPointNW);
-        const pointEntitySW = cesiumViewer.entities.add({
-            description: `SW`,
-            position: Cesium.Cartesian3.fromDegrees(dataPointSW.longitude, dataPointSW.latitude, dataPointSW.height),
-            point: { pixelSize: 20, color: Cesium.Color.RED }
-        });
-        const dataPointSE = { longitude: view.east * 180 / Cesium.Math.PI, latitude: view.south * 180 / Cesium.Math.PI, height: 0 };
-        //console.log(dataPointNW);
-        const pointEntitySE = cesiumViewer.entities.add({
-            description: `SE`,
-            position: Cesium.Cartesian3.fromDegrees(dataPointSE.longitude, dataPointSE.latitude, dataPointSE.height),
-            point: { pixelSize: 20, color: Cesium.Color.RED }
-        });
-        const p1= cesiumViewer.entities.add({
-            polyline: {
-                positions: Cesium.Cartesian3.fromDegreesArray([
-                    dataPointNW.longitude,
-                    dataPointNW.latitude,
-                    dataPointNE.longitude,
-                    dataPointNE.latitude,
-                    dataPointSE.longitude,
-                    dataPointSE.latitude,
-                    dataPointSW.longitude,
-                    dataPointSW.latitude,
-                    dataPointNW.longitude,
-                    dataPointNW.latitude,
-                ]),
-                width: 6,
-                material: Cesium.Color.RED,
-                clampToGround: true,
-            },
-        });
-        */
 
     };
     CKANRequest.prototype.getMainGroups = async function (url) {
@@ -315,29 +244,7 @@ var CKANRequest = /** @class */ (function () {
 
 
 
-        /*
-        for (let index = 0; index < results.length; index++) {
-            const g = results[index].groups[0].display_name;
-            var included = false;
-            if (groups.length === 0) {
-                groups.push(g);
-                //console.log(g);
-    
-            }
-            else {
-                for (let index2 = 0; index2 < groups.length; index2++) {
-                    if (groups[index2] === g) {
-                        included = true;
-                        break;
-                    }
-                }
-                if (!included) {
-                    groups.push(g);
-                }
-            }
-    
-        }*/
-        //return groups;
+       
     };
     /*
     CKANRequest.prototype.sendHttpRequest = function (method, url, data) {
@@ -502,10 +409,7 @@ var CKANRequest = /** @class */ (function () {
                 mainGroupArray[chars[0]].datasetArray[chars[1]].notes +
                 "</td></tr>" +
                 "</tbody></table>";
-            //var tableElement=document.getElementById("infoBoxTable");
-            //var infoBoxDescription=tableElement.querySelectorAll('div.cesium-infoBox-description')[0];
 
-            //infoBoxDescription.innerHTML=entityDescription;
 
             //if entity is already created only make it visible
             if (cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title) != undefined) {
@@ -516,120 +420,8 @@ var CKANRequest = /** @class */ (function () {
             }
 
             //parse spatial attribute
-            var spatial = mainGroupArray[chars[0]].datasetArray[chars[1]].spatial;
-            spatial = spatial.replace(/\s+/g, '');
-            //console.log(spatial);
-            var splitspatial = spatial.split('"type":').join(",").split(",");
-            var type = splitspatial[1];
-            var coordinateArray = splitspatial.join(",").split('"coordinates":')[1].split('],[');
-            //console.log(type);
-            if (type == '"Point"' || type == ' "Point"') {
-                //console.log("Point!");
-                coordinateArray = coordinateArray.join(";");
-                coordinateArray = coordinateArray.substring(1, coordinateArray.length - 2).split(",");
-                //console.log(coordinateArray);
-                var pinBuilder = new Cesium.PinBuilder();
-                dataPoint = { longitude: parseFloat(coordinateArray[0]), latitude: parseFloat(coordinateArray[1]), height: 0 };
-                const pointEntity = cesiumViewer.entities.add({
-                    name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
-                    id: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
-
-                    position: Cesium.Cartesian3.fromDegrees(dataPoint.longitude, dataPoint.latitude, dataPoint.height),
-                    billboard: {
-                        image: pinBuilder.fromColor(Cesium.Color.RED.withAlpha(0.8), 40).toDataURL(),
-                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                    },
-                });
-
-                pointEntity.description = entityDescription;
-                cesiumViewer.flyTo(cesiumViewer.entities);
-
-            }
-            if (type == '"MultiPolygon"') {
-                //console.log("Polygon!");
-                var multi = spatial.indexOf("]]],[[["); //if there are more than one polygon multi will be !=-1
-                //console.log(coordinateArray);
-                //console.log(multi);
-                if (multi != -1) {
-                    var hole = [];
-                    var polygonCoos = [];
-                    coordinateArray = coordinateArray.join(",")
-                    coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
-                    //console.log(coordinateArray);
-                    for (let index = 0; index < coordinateArray.length; index++) {
-                        if (coordinateArray[index].indexOf("[[") != -1) {
-                            //console.log(index);
-                            coordinateArray[index] = coordinateArray[index].substring(2, coordinateArray[index].length);
-
-                            while (index < coordinateArray.length) {
-                                polygonCoos[polygonCoos.length] = parseFloat(coordinateArray[index]);
-                                index++;
-                            }
-                            break;
-                        }
-                        else if (coordinateArray[index].indexOf("]]") == -1) {
-                            hole[index] = parseFloat(coordinateArray[index]);
-                        }
-                        else {
-                            coordinateArray[index] = coordinateArray[index].substring(0, coordinateArray[index].length - 2);
-                            hole[index] = parseFloat(coordinateArray[index]);
-
-                        }
-
-                    }
-                    //console.log(polygonCoos);
-                    //console.log(hole);
-                    var polygon = cesiumViewer.entities.add({
-                        name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
-                        id: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
-                        polygon: {
-                            hierarchy: {
-                                positions: Cesium.Cartesian3.fromDegreesArray(
-                                    polygonCoos,
-                                ),
-                                holes: [
-                                    {
-                                        positions: Cesium.Cartesian3.fromDegreesArray(
-                                            hole,
-                                        ),
-                                    },
-                                ],
-                            },
-                            material: Cesium.Color.RED.withAlpha(0.5),
-                        },
-                    });
-                    cesiumViewer.flyTo(cesiumViewer.entities);
-
-
-                }
-                else { //polygon with holes
-                    coordinateArray = coordinateArray.join(",");
-                    coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
-                    //coordinateArray.split(",");
-                    //console.log(coordinateArray);
-                    //adding Points
-                    for (let index = 0; index < coordinateArray.length; index++) {
-                        coordinateArray[index] = parseFloat(coordinateArray[index]);
-
-                    }
-                    //console.log(coordinateArray);
-                    var polygon = cesiumViewer.entities.add({
-                        name: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
-                        id: mainGroupArray[chars[0]].datasetArray[chars[1]].title,
-                        polygon: {
-                            hierarchy: Cesium.Cartesian3.fromDegreesArray(
-                                coordinateArray,
-                            ),
-                            material: Cesium.Color.RED.withAlpha(0.5),
-                        },
-                    });
-                    cesiumViewer.flyTo(cesiumViewer.entities);
-                }
-                polygon.description = entityDescription;
-                cesiumViewer.flyTo(cesiumViewer.entities);
-
-
-            }
+            CKANRequest.prototype.parseSpatial(mainGroupArray[chars[0]].datasetArray[chars[1]], entityDescription);
+            
 
         } else if (document.getElementsByName(name)[0].innerHTML == "-") {
             var chars = name.split("/");
@@ -757,51 +549,60 @@ var CKANRequest = /** @class */ (function () {
 
             var connDataNew = await dataset;
             //console.log(connData);
-            if (connData != undefined) {
+            if (connDataNew != undefined) {
                 connDataArray.push(connDataNew);
                 relationshipSubjectString += "<tr><th>Connection: " + connData.relationships_as_subject[index].type + " as subject</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connDataNew.title + "</button></td></tr>";
                 connDataCount++;
             }
 
         }
-        
+
         var connInfo = document.getElementById("ConnectionInfo");
-        
+
         document.getElementById("ConnectionTitle").innerHTML = connData.title;
-        var spatialString="";
-        var ind="";
-        if (connData.spatial!=""){
-            var exists=false;
+        var spatialString = "";
+        var ind = "";
+
+        if (connData.spatial != "") {
+            var exists = false;
             for (let i = 0; i < mainGroupArray.length; i++) {
                 for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
-                    if(connData.id==mainGroupArray[i].datasetArray[j].id){
-                        exists=true;
-                        ind=`${i}/${j}`;
+                    if (connData.id == mainGroupArray[i].datasetArray[j].id) {
+                        exists = true;
+                        ind = `${i}/${j}`;
                         break;
                     }
                 }
-                if(exists){
+                if (exists) {
                     break;
                 }
             }
-            if (exists){
-                var name=ind+"/"+connData.title;
+            if (exists) {
+                var name = ind + "/" + connData.title;
                 console.log(name)
-                if(document.getElementsByName(name)[0].innerHTML=="+"){
-                    spatialString="<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='"+name+"' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>+</button></td></tr>";
+                if (document.getElementsByName(name)[0].innerHTML == "+") {//dataset exists but is currently not visible
+                    spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>+</button></td></tr>";
                     //CKANRequest.prototype.addToMap(name);  
                 }
-                else{
-                    spatialString="<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='"+name+"' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>-</button></td></tr>";
-                    //entity ist bereits im Viewer sichtbar
-                } 
+                else {//entity already visible
+                    spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>-</button></td></tr>";
+
+                }
             }
-            else{
-                var spatial=connData.spatial;
-                console.log(spatial)
+            else {// dataset does not exist --> spatial entity has to be created
+                mainGroupArray[mainGroupArray.length-1].datasetArray.push(connData);
+                var name = `${mainGroupArray.length-1}/${mainGroupArray[mainGroupArray.length-1].datasetArray.length-1}`
+                name = name + "/" + connData.title;
+                spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>+</button></td></tr>";
+                CKANRequest.prototype.refreshResultWindow();
+
             }
-            
+
         }
+        else {
+            console.log(connData);
+        }
+
         document.getElementById("connTable").innerHTML = '<tbody>' +
             "<tr><th>Author</th><td>" +
             connData.author +
@@ -842,7 +643,7 @@ var CKANRequest = /** @class */ (function () {
             resourcesString +
             relationshipSubjectString +
             relationshipObjectString +
-            spatialString+
+            spatialString +
             "<tr><th>Created</th><td>" +
             connData.metadata_created +
             "</td></tr>" +
@@ -853,21 +654,164 @@ var CKANRequest = /** @class */ (function () {
             connData.notes +
             "</td></tr>" +
             "</tbody>";
-        console.log("test");
+
         connInfo.style.display = "block";
-        console.log(connInfo);
+
 
     }
-    CKANRequest.prototype.closeConnectionWindow= function (){
-        document.getElementById("ConnectionInfo").style.display="none";
+    CKANRequest.prototype.closeConnectionWindow = function () {
+        document.getElementById("ConnectionInfo").style.display = "none";
     }
-    CKANRequest.prototype.spatialPlusMinus=function(){
-        if(document.getElementById("ConnectionSpatialAdd").innerHTML=="+"){
-            document.getElementById("ConnectionSpatialAdd").innerHTML="-";
+    CKANRequest.prototype.spatialPlusMinus = function () {
+        if (document.getElementById("ConnectionSpatialAdd").innerHTML == "+") {
+            document.getElementById("ConnectionSpatialAdd").innerHTML = "-";
         }
-        else{
-            document.getElementById("ConnectionSpatialAdd").innerHTML="+";
+        else {
+            document.getElementById("ConnectionSpatialAdd").innerHTML = "+";
         }
+    }
+    CKANRequest.prototype.parseSpatial = function (dataset, entityDescription) {
+        //parse spatial attribute
+        var spatial = dataset.spatial;
+        spatial = spatial.replace(/\s+/g, '');
+        //console.log(spatial);
+        var splitspatial = spatial.split('"type":').join(",").split(",");
+        var type = splitspatial[1];
+        var coordinateArray = splitspatial.join(",").split('"coordinates":')[1].split('],[');
+        //console.log(type);
+        if (type == '"Point"' || type == ' "Point"') {
+            //console.log("Point!");
+            coordinateArray = coordinateArray.join(";");
+            coordinateArray = coordinateArray.substring(1, coordinateArray.length - 2).split(",");
+            //console.log(coordinateArray);
+            var pinBuilder = new Cesium.PinBuilder();
+            dataPoint = { longitude: parseFloat(coordinateArray[0]), latitude: parseFloat(coordinateArray[1]), height: 0 };
+            const pointEntity = cesiumViewer.entities.add({
+                name: dataset.title,
+                id: dataset.title,
+
+                position: Cesium.Cartesian3.fromDegrees(dataPoint.longitude, dataPoint.latitude, dataPoint.height),
+                billboard: {
+                    image: pinBuilder.fromColor(Cesium.Color.RED.withAlpha(0.8), 40).toDataURL(),
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                },
+            });
+
+            pointEntity.description = entityDescription;
+            cesiumViewer.flyTo(cesiumViewer.entities);
+
+        }
+        if (type == '"MultiPolygon"') {
+            //console.log("Polygon!");
+            var multi = spatial.indexOf("]]],[[["); //if there are more than one polygon multi will be !=-1
+            //console.log(coordinateArray);
+            //console.log(multi);
+            if (multi != -1) {
+                var hole = [];
+                var polygonCoos = [];
+                coordinateArray = coordinateArray.join(",")
+                coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
+                //console.log(coordinateArray);
+                for (let index = 0; index < coordinateArray.length; index++) {
+                    if (coordinateArray[index].indexOf("[[") != -1) {
+                        //console.log(index);
+                        coordinateArray[index] = coordinateArray[index].substring(2, coordinateArray[index].length);
+
+                        while (index < coordinateArray.length) {
+                            polygonCoos[polygonCoos.length] = parseFloat(coordinateArray[index]);
+                            index++;
+                        }
+                        break;
+                    }
+                    else if (coordinateArray[index].indexOf("]]") == -1) {
+                        hole[index] = parseFloat(coordinateArray[index]);
+                    }
+                    else {
+                        coordinateArray[index] = coordinateArray[index].substring(0, coordinateArray[index].length - 2);
+                        hole[index] = parseFloat(coordinateArray[index]);
+
+                    }
+
+                }
+                //console.log(polygonCoos);
+                //console.log(hole);
+                var polygon = cesiumViewer.entities.add({
+                    name: dataset.title,
+                    id: dataset.title,
+                    polygon: {
+                        hierarchy: {
+                            positions: Cesium.Cartesian3.fromDegreesArray(
+                                polygonCoos,
+                            ),
+                            holes: [
+                                {
+                                    positions: Cesium.Cartesian3.fromDegreesArray(
+                                        hole,
+                                    ),
+                                },
+                            ],
+                        },
+                        material: Cesium.Color.RED.withAlpha(0.5),
+                    },
+                });
+                cesiumViewer.flyTo(cesiumViewer.entities);
+
+
+            }
+            else { //polygon with holes
+                coordinateArray = coordinateArray.join(",");
+                coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
+                //coordinateArray.split(",");
+                //console.log(coordinateArray);
+                //adding Points
+                for (let index = 0; index < coordinateArray.length; index++) {
+                    coordinateArray[index] = parseFloat(coordinateArray[index]);
+
+                }
+                //console.log(coordinateArray);
+                var polygon = cesiumViewer.entities.add({
+                    name: dataset.title,
+                    id: dataset.title,
+                    polygon: {
+                        hierarchy: Cesium.Cartesian3.fromDegreesArray(
+                            coordinateArray,
+                        ),
+                        material: Cesium.Color.RED.withAlpha(0.5),
+                    },
+                });
+                cesiumViewer.flyTo(cesiumViewer.entities);
+            }
+            polygon.description = entityDescription;
+            cesiumViewer.flyTo(cesiumViewer.entities);
+
+
+        }
+    }
+    CKANRequest.prototype.refreshResultWindow=function(){
+        var x = document.getElementById("CKAN_Results");
+        var text = "";
+
+        // fill the result window
+        for (let i = 0; i < mainGroupArray.length; i++) {
+            if (mainGroupArray[i].datasetArray.length > 0) {
+                text = text + "<b>" + mainGroupArray[i].name + "</b>";
+
+                for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
+                    if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
+                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
+                    } else {
+                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
+                    }
+                }
+                //text=text+"<br>";
+            }
+
+        }
+        x.innerHTML = text;
+        x.style.display = "block";
+        document.getElementById("ResultWindow").style.display = "block";
+        document.getElementById("CloseCKANButton").style.display = "block";
+        document.getElementById("MinCKANButton").style.display = "block";
     }
 
     return CKANRequest;
