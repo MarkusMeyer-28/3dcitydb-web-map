@@ -88,7 +88,7 @@ var CKANRequest = /** @class */ (function () {
         var url = document.getElementById('urlCKAN').value;
         var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&rows=99999999999999999";
 
-        var results = []; //all results fitting the input parameters
+        var results = []; //all results fitting the spatial input parameters
 
         var groups;
         mainGroupArray = [];
@@ -196,7 +196,7 @@ var CKANRequest = /** @class */ (function () {
         await setGroups().then(console.log(mainGroupArray));
         //console.log(mainGroupArray);
         CKANRequest.prototype.refreshResultWindow();
-        
+
 
 
     };
@@ -244,7 +244,7 @@ var CKANRequest = /** @class */ (function () {
 
 
 
-       
+
     };
     /*
     CKANRequest.prototype.sendHttpRequest = function (method, url, data) {
@@ -421,7 +421,7 @@ var CKANRequest = /** @class */ (function () {
 
             //parse spatial attribute
             CKANRequest.prototype.parseSpatial(mainGroupArray[chars[0]].datasetArray[chars[1]], entityDescription);
-            
+
 
         } else if (document.getElementsByName(name)[0].innerHTML == "-") {
             var chars = name.split("/");
@@ -450,53 +450,62 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.compareTime = function (startdate, enddate, collectionStart, collectionEnd) {
-        if (collectionEnd == undefined) {
+        //return false if collectionStart or end is outside the queried time frame
+        if (collectionEnd == undefined || collectionEnd == "") {
+            //if collectionEnd is not defined use today
             var today = new Date();
             collectionEnd = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
         }
         if (collectionStart == undefined || collectionStart == "") {
+            //if collectionStart is not defined use startdate --> start is always in time frame
             collectionStart = startdate;
         }
+        //parse date into array with year, month and day
         startArray = startdate.split("-");
         endArray = enddate.split("-");
         collectionStartArray = collectionStart.split("-");
         collectionEndArray = collectionEnd.split("-");
-        //console.log(startArray);
-        //console.log(collectionStartArray);
+
+        //compare year
         if (parseInt(startArray[0]) > parseInt(collectionStartArray[0]) || parseInt(endArray[0]) < parseInt(collectionEndArray[0])) {
-            //console.log("Startjahr später oder Endjahr früher");
+            //collectionStart before queried startdate or collection end after queried enddate
             return false;
         }
+
         if (parseInt(startArray[0]) == parseInt(collectionStartArray[0])) {
+            //Same year
             if (parseInt(startArray[1]) > parseInt(collectionStartArray[1])) {
-                //console.log("Startmonat später");
+                //collection Start month before queried start month
                 return false;
             }
             if (parseInt(startArray[1]) == parseInt(collectionStartArray[1])) {
+                //same month
                 if (parseInt(startArray[2]) > parseInt(collectionStartArray[2])) {
-                    //console.log("Starttag später");
+                    // collection Start day before queried startday
                     return false;
                 }
             }
         }
         if (parseInt(endArray[0]) == parseInt(collectionEndArray[0])) {
+            //same year
             if (parseInt(endArray[1]) < parseInt(collectionEndArray[1])) {
-                //console.log("Endmonat früher");
+                //collection end month after queried end month
                 return false;
             }
             if (parseInt(endArray[1]) == parseInt(collectionEndArray[1])) {
+                //same month
                 if (parseInt(endArray[2]) < parseInt(collectionEndArray[2])) {
-                    //console.log("Endtag früher")
+                    //collection end day after queried end day
                     return false;
                 }
             }
         }
-        //console.log("innerhalb")
+        //startdate before collection Start and enddate after collection end
         return true;
     }
 
     CKANRequest.prototype.showConnection = async function (ind) {
-
+        //build a window for connected dataset
 
         var connData = connDataArray[ind];
         var groupstring = ""; // parse groupArray
@@ -507,15 +516,15 @@ var CKANRequest = /** @class */ (function () {
         // Remove last comma
         groupstring = groupstring.substring(0, groupstring.length - 2);
 
-        var resourcesString = '';
+        var resourcesString = ''; //parse connected Resources display them using links
         for (let index = 0; index < connData.resources.length; index++) {
             resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
                 connData.resources[index].url + "' target='_blank'>" + connData.resources[index].url + "</a>" +
                 "</td></tr>";
 
         }
+        //parse relations as object, display them using buttons which lead to the connected datasets which open in a new window
         var relationshipObjectString = "";
-
 
         for (let index = 0; index < connData.relationships_as_object.length; index++) {
             var id = connData.relationships_as_object[index].__extras.subject_package_id;
@@ -537,10 +546,13 @@ var CKANRequest = /** @class */ (function () {
             }
         }
 
+        //parse relations as subject, display them using buttons which lead to the connected datasets which open in a new window
+
         var relationshipSubjectString = "";
         for (let index = 0; index < connData.relationships_as_subject.length; index++) {
             var id = connData.relationships_as_subject[index].__extras.object_package_id;
             var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+            //get full representation of connected dataset
             var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
                 return data.result;
             }).catch(function (error) {
@@ -552,11 +564,11 @@ var CKANRequest = /** @class */ (function () {
             if (connDataNew != undefined) {
                 connDataArray.push(connDataNew);
                 relationshipSubjectString += "<tr><th>Connection: " + connData.relationships_as_subject[index].type + " as subject</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connDataNew.title + "</button></td></tr>";
-                connDataCount++;
+                connDataCount++; //connDataCount used as index in connDataArray and as a name for the button to identify which dataset is connected to which button
             }
 
         }
-
+        //fill html element ConnectionInfo
         var connInfo = document.getElementById("ConnectionInfo");
 
         document.getElementById("ConnectionTitle").innerHTML = connData.title;
@@ -564,12 +576,13 @@ var CKANRequest = /** @class */ (function () {
         var ind = "";
 
         if (connData.spatial != "") {
-            var exists = false;
+            //if dataset has spatial information a button should be added to add the information to the map
+            var exists = false;//test if the dataset is already part of the queried datasets
             for (let i = 0; i < mainGroupArray.length; i++) {
                 for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
                     if (connData.id == mainGroupArray[i].datasetArray[j].id) {
                         exists = true;
-                        ind = `${i}/${j}`;
+                        ind = `${i}/${j}`; //safe the indices of the dataset in the mainGroupArray
                         break;
                     }
                 }
@@ -590,8 +603,8 @@ var CKANRequest = /** @class */ (function () {
                 }
             }
             else {// dataset does not exist --> spatial entity has to be created
-                mainGroupArray[mainGroupArray.length-1].datasetArray.push(connData);
-                var name = `${mainGroupArray.length-1}/${mainGroupArray[mainGroupArray.length-1].datasetArray.length-1}`
+                mainGroupArray[mainGroupArray.length - 1].datasetArray.push(connData);
+                var name = `${mainGroupArray.length - 1}/${mainGroupArray[mainGroupArray.length - 1].datasetArray.length - 1}`
                 name = name + "/" + connData.title;
                 spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>+</button></td></tr>";
                 CKANRequest.prototype.refreshResultWindow();
@@ -674,11 +687,11 @@ var CKANRequest = /** @class */ (function () {
         //parse spatial attribute
         var spatial = dataset.spatial;
         spatial = spatial.replace(/\s+/g, '');
-        //console.log(spatial);
+        console.log(spatial);
         var splitspatial = spatial.split('"type":').join(",").split(",");
         var type = splitspatial[1];
         var coordinateArray = splitspatial.join(",").split('"coordinates":')[1].split('],[');
-        //console.log(type);
+        console.log(type);
         if (type == '"Point"' || type == ' "Point"') {
             //console.log("Point!");
             coordinateArray = coordinateArray.join(";");
@@ -706,12 +719,12 @@ var CKANRequest = /** @class */ (function () {
             var multi = spatial.indexOf("]]],[[["); //if there are more than one polygon multi will be !=-1
             //console.log(coordinateArray);
             //console.log(multi);
-            if (multi != -1) {
+            if (multi != -1) {//polygon with holes
                 var hole = [];
                 var polygonCoos = [];
                 coordinateArray = coordinateArray.join(",")
                 coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
-                //console.log(coordinateArray);
+                console.log(coordinateArray);
                 for (let index = 0; index < coordinateArray.length; index++) {
                     if (coordinateArray[index].indexOf("[[") != -1) {
                         //console.log(index);
@@ -733,8 +746,8 @@ var CKANRequest = /** @class */ (function () {
                     }
 
                 }
-                //console.log(polygonCoos);
-                //console.log(hole);
+                console.log(polygonCoos);
+                console.log(hole);
                 var polygon = cesiumViewer.entities.add({
                     name: dataset.title,
                     id: dataset.title,
@@ -758,11 +771,11 @@ var CKANRequest = /** @class */ (function () {
 
 
             }
-            else { //polygon with holes
+            else { //Normal Polygon
                 coordinateArray = coordinateArray.join(",");
                 coordinateArray = coordinateArray.substring(4, coordinateArray.length - 5).split(",");
                 //coordinateArray.split(",");
-                //console.log(coordinateArray);
+                console.log(coordinateArray);
                 //adding Points
                 for (let index = 0; index < coordinateArray.length; index++) {
                     coordinateArray[index] = parseFloat(coordinateArray[index]);
@@ -786,8 +799,31 @@ var CKANRequest = /** @class */ (function () {
 
 
         }
+        if (type == '"Polygon"') {
+            coordinateArray = coordinateArray.join(",");
+            coordinateArray = coordinateArray.substring(3, coordinateArray.length - 4).split(",");
+            console.log(coordinateArray);
+            //adding Points
+            for (let index = 0; index < coordinateArray.length; index++) {
+                coordinateArray[index] = parseFloat(coordinateArray[index]);
+
+            }
+            var polygon = cesiumViewer.entities.add({
+                name: dataset.title,
+                id: dataset.title,
+                polygon: {
+                    hierarchy: Cesium.Cartesian3.fromDegreesArray(
+                        coordinateArray,
+                    ),
+                    material: Cesium.Color.RED.withAlpha(0.5),
+                },
+            });
+            cesiumViewer.flyTo(cesiumViewer.entities);
+            polygon.description = entityDescription;
+            cesiumViewer.flyTo(cesiumViewer.entities);
+        }
     }
-    CKANRequest.prototype.refreshResultWindow=function(){
+    CKANRequest.prototype.refreshResultWindow = function () {
         var x = document.getElementById("CKAN_Results");
         var text = "";
 
