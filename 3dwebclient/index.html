@@ -254,10 +254,11 @@
             border: 3px #505050 solid;
             font-size: 9pt;
             text-align: right;
-            
+
 
         }
-        #temporalInput{
+
+        #temporalInput {
             display: none;
             text-align: right;
             padding-top: 10px;
@@ -352,31 +353,67 @@
             max-height: 550px;
 
         }
-        #ConnectionInfo{
-           
+
+        #ConnectionInfo {
+
             max-height: 460px;
             min-height: 460px;
             display: none;
             position: absolute;
             min-width: 300px;
-            max-width:300px ;
+            max-width: 300px;
             right: 500px;
             top: 180px;
             z-index: 9001;
-            
+
             color: rgb(255, 255, 255);
-            
-            
+
+
         }
-        #custom_connectionTable{
+
+        #custom_connectionTable {
             overflow-y: auto;
             overflow-x: auto;
             max-height: 419px;
             min-height: 419px;
             min-width: 276px;
-            max-width:276px ;
+            max-width: 276px;
             background: rgba(42, 42, 42, 0.9);
             border: 2px #505050 solid;
+        }
+
+        #LayerWindow {
+
+
+            z-index: 9002;
+            position: absolute;
+            top: 250px;
+
+            right: 500px;
+            width: 220px;
+            display: none;
+        }
+
+        #LayerTitle {
+            color: rgb(255, 255, 255);
+
+        }
+
+        #Layerbox {
+            background: rgba(42, 42, 42, 0.9);
+
+            border: 2px #505050 solid;
+            z-index: 9002;
+            width: 196px;
+            height: 50px;
+
+        }
+
+        #WMSLayerButton {
+            position: absolute;
+            top: 60px;
+            left: 7px;
+            font-size: 9pt
         }
     </style>
 </head>
@@ -799,13 +836,16 @@
                 <label>Catalog Entries</label>
             </div>
             <div id="CloseCKANButtonDiv">
-                <button id="CloseCKANButton" type="button" class="cesium-button" onclick="CKANRequest.prototype.closeResults()">x</button>
+                <button id="CloseCKANButton" type="button" class="cesium-button"
+                    onclick="CKANRequest.prototype.closeResults()">x</button>
             </div>
             <div id="MinCKANButtonDiv">
-                <button id= "MinCKANButton" type="button" class="cesium-button" onclick="CKANRequest.prototype.minResults()">-</button>
+                <button id="MinCKANButton" type="button" class="cesium-button"
+                    onclick="CKANRequest.prototype.minResults()">-</button>
             </div>
             <div id="MaxCKANButtonDiv">
-                <button id="MaxCKANButton" type="button" class="cesium-button" onclick="CKANRequest.prototype.maxResults()">+</button>
+                <button id="MaxCKANButton" type="button" class="cesium-button"
+                    onclick="CKANRequest.prototype.maxResults()">+</button>
             </div>
             <div id="CKAN_Results">
                 <p>MainGroup</p>
@@ -818,10 +858,23 @@
 
         </div>
         <div id="ConnectionInfo">
-            <div id ="ConnectionTitle" class="cesium-infoBox-title">Test</div>
-            <button type="button" class= "cesium-infoBox-close" onclick="CKANRequest.prototype.closeConnectionWindow()">×</button>
+            <div id="ConnectionTitle" class="cesium-infoBox-title">Test</div>
+            <button type="button" class="cesium-infoBox-close"
+                onclick="CKANRequest.prototype.closeConnectionWindow()">×</button>
             <div id="custom_connectionTable" class="cesium-infoBox-description">
-                <table id="connTable" class="cesium-infoBox-defaultTable"></table>    
+                <table id="connTable" class="cesium-infoBox-defaultTable"></table>
+            </div>
+        </div>
+        <div id="LayerWindow">
+            <div id="LayerTitle" class="cesium-infoBox-title">Available Layers</div>
+            <button type="button" class="cesium-infoBox-close"
+                onclick="CKANRequest.prototype.closeLayerWindow()">×</button>
+            <div id="Layerbox" class="cesium-infoBox-description">
+                <select id="layerSelector">
+                    <option>A</option>
+                </select>
+                <button id="WMSLayerButton" type="button" class="cesium-button"
+                    onclick="CKANRequest.prototype.wmsLayerToMap()">Add</button>
             </div>
         </div>
 

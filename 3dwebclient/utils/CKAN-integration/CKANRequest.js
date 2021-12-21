@@ -3,6 +3,8 @@ var CKANRequest = /** @class */ (function () {
     var setUp = false;
     var connDataArray = [];
     var connDataCount = 0;
+    var wmsModel;
+
 
     function CKANRequest() {
 
@@ -313,6 +315,10 @@ var CKANRequest = /** @class */ (function () {
 
             var resourcesString = '';
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].resources.length; index++) {
+                if (mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].format == "WMS") {
+                    resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><button id='WMSButton' name='" + chars[0] + "/" + chars[1] + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
+                        "</td></tr>";
+                }
                 resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
                     mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>" +
                     "</td></tr>";
@@ -518,9 +524,15 @@ var CKANRequest = /** @class */ (function () {
 
         var resourcesString = ''; //parse connected Resources display them using links
         for (let index = 0; index < connData.resources.length; index++) {
-            resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
-                connData.resources[index].url + "' target='_blank'>" + connData.resources[index].url + "</a>" +
-                "</td></tr>";
+            if (connData.resources[index].format == "WMS") {
+                resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><button id='WMSButton' name='" + connData.resources[index].url + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
+                    "</td></tr>";
+            }
+            else {
+                resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
+                    connData.resources[index].url + "' target='_blank'>" + connData.resources[index].url + "</a>" +
+                    "</td></tr>";
+            }
 
         }
         //parse relations as object, display them using buttons which lead to the connected datasets which open in a new window
@@ -685,21 +697,21 @@ var CKANRequest = /** @class */ (function () {
     }
     CKANRequest.prototype.parseSpatial = function (dataset, entityDescription) {
         //parse spatial attribute
-        var spatial=dataset.spatial;
-        const obj=JSON.parse(spatial);
-        var dataSource=Cesium.GeoJsonDataSource.load(obj,{fill: Cesium.Color.RED.withAlpha(0.5),});
+        var spatial = dataset.spatial;
+        const obj = JSON.parse(spatial);
+        var dataSource = Cesium.GeoJsonDataSource.load(obj, { fill: Cesium.Color.RED.withAlpha(0.5), });
         cesiumViewer.dataSources.add(dataSource);
-        var dataSources=cesiumViewer.dataSources._dataSources;
-        var entityArray=dataSources[dataSources.length-1]._entityCollection._entities._array;
-        console.log(entityArray);
+        var dataSources = cesiumViewer.dataSources._dataSources;
+        var entityArray = dataSources[dataSources.length - 1]._entityCollection._entities._array;
+        
         for (let index = 0; index < entityArray.length; index++) {
-            entityArray[index].description=entityDescription;
-            entityArray[index].name=dataset.title;
-            entityArray[index].id=dataset.title;
-            entityArray[index]._id=dataset.title;
+            entityArray[index].description = entityDescription;
+            entityArray[index].name = dataset.title;
+            entityArray[index].id = dataset.title;
+            entityArray[index]._id = dataset.title;
             cesiumViewer.entities.add(entityArray[index]);
         }
-        console.log(cesiumViewer.entities);
+        
         cesiumViewer.flyTo(cesiumViewer.entities);
     }
     CKANRequest.prototype.refreshResultWindow = function () {
@@ -728,6 +740,88 @@ var CKANRequest = /** @class */ (function () {
         document.getElementById("CloseCKANButton").style.display = "block";
         document.getElementById("MinCKANButton").style.display = "block";
     }
+    CKANRequest.prototype.addWMS = async function (name) {
+        var data = name.split("/");
+        var url = mainGroupArray[data[0]].datasetArray[data[1]].resources[data[2]].url;
+        var dataset = fetch(url + "Service=WMS&Version=1.1.1&Request=GetCapabilities").then((resp) => resp.text()).then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+            .then(function (data) { return data; });
+        wmsModel = {
+            name: '',
+            iconUrl: '',
+            tooltip: '',
+            url: '',
+            layers: '',
+            additionalParameters: '',
+            proxyUrl: '/proxy/'
+        };
+
+        wmsModel.url = url;
+        wmsModel.name = mainGroupArray[data[0]].datasetArray[data[1]].title
+        wmsModel.tooltip = mainGroupArray[data[0]].datasetArray[data[1]].title + " - WMS";
+
+        var wmsData = await dataset;
+
+        var layers = wmsData.getElementsByTagName("Layer");
+        var selector = document.getElementById("layerSelector");
+        selector.innerHTML = "";
+        //console.log(layers);
+        if (layers.length == 0) {
+            var opt = document.createElement('option');
+            opt.value = "No layers found";
+            opt.innerHTML = "No layers found";
+            selector.appendChild(opt);
+            document.getElementById("LayerWindow").style.display = "block";
+            document.getElementById("WMSLayerButton").style.display="none";
+            return;
+        }
+        
+        for (let index = 0; index < layers.length; index++) {
+            //console.log(layers[index].outerHTML.indexOf("queryable"))
+            if (layers[index].attributes.queryable != undefined) {
+                var layerName = layers[index].children[0].innerHTML;
+                var opt = document.createElement('option');
+                opt.value = layerName;
+                opt.innerHTML = layerName;
+                selector.appendChild(opt);
+            }
+
+        }
+        document.getElementById("LayerWindow").style.display = "block"
+        document.getElementById("WMSLayerButton").style.display="block";
+        //console.log(addWmsViewModel);
+
+        //console.log(addWmsViewModel.url);
+
+    }
+    CKANRequest.prototype.wmsLayerToMap = function () {
+        var selLayer = document.getElementById("layerSelector");
+        var layer = selLayer.options[selLayer.selectedIndex].innerHTML;
+        wmsModel.layers = layer;
+        CKANRequest.prototype.addWebMapServiceProvider(wmsModel);
+        document.getElementById("LayerWindow").style.display = "none";
+
+    }
+    CKANRequest.prototype.addWebMapServiceProvider = function (wmsViewModel) {
+        var baseLayerPickerViewModel = cesiumViewer.baseLayerPicker.viewModel;
+        var wmsProviderViewModel = new Cesium.ProviderViewModel({
+            name: wmsViewModel.name.trim(),
+            iconUrl: wmsViewModel.iconUrl.trim(),
+            tooltip: wmsViewModel.tooltip.trim(),
+            creationFunction: function () {
+                return new Cesium.WebMapServiceImageryProvider({
+                    url: new Cesium.Resource({ url: wmsViewModel.url.trim(), proxy: addWmsViewModel.proxyUrl.trim().length == 0 ? null : new Cesium.DefaultProxy(addWmsViewModel.proxyUrl.trim()) }),
+                    layers: wmsViewModel.layers.trim(),
+                    parameters: Cesium.queryToObject(wmsViewModel.additionalParameters.trim())
+                });
+            }
+        });
+        baseLayerPickerViewModel.imageryProviderViewModels.push(wmsProviderViewModel);
+        baseLayerPickerViewModel.selectedImagery = wmsProviderViewModel;
+    }
+    CKANRequest.prototype.closeLayerWindow = function () {
+        document.getElementById("LayerWindow").style.display = "none";
+    }
+
 
     return CKANRequest;
 }());
