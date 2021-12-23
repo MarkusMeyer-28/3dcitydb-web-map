@@ -300,12 +300,14 @@ var CKANRequest = /** @class */ (function () {
         // Add spatial information as entities to the Cesium Map, or remove it 
         var entities = cesiumViewer.entities;
         entities.show = true;
-        if (document.getElementsByName(name)[0].innerHTML == "+") {
+        //console.log(document.getElementsByName(name)[0].innerHTML);
+        //console.log('<img src="utils/CKAN-integration/images/visibility_off_white_18dp.svg">')
+        if (document.getElementsByName(name)[0].innerHTML == '<img src="utils/CKAN-integration/images/visibility_off_white_18dp.svg">') {
             //split name to get information on which dataset should be added
             var chars = name.split("/");
 
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
-            document.getElementsByName(name)[0].innerHTML = "-";
+            document.getElementsByName(name)[0].innerHTML = '<img src="utils/CKAN-integration/images/visibility_white_18dp.svg">';
             var groupstring = ""; // parse groupArray
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].groups.length; index++) {
                 groupstring = groupstring + mainGroupArray[chars[0]].datasetArray[chars[1]].groups[index].display_name + ", ";
@@ -429,14 +431,14 @@ var CKANRequest = /** @class */ (function () {
             CKANRequest.prototype.parseSpatial(mainGroupArray[chars[0]].datasetArray[chars[1]], entityDescription);
 
 
-        } else if (document.getElementsByName(name)[0].innerHTML == "-") {
+        } else if (document.getElementsByName(name)[0].innerHTML == '<img src="utils/CKAN-integration/images/visibility_white_18dp.svg">') {
             var chars = name.split("/");
             //console.log("Remove");
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             var entity = cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             entity.show = !entity.show;
             cesiumViewer.flyTo(cesiumViewer.entities);
-            document.getElementsByName(name)[0].innerHTML = "+";
+            document.getElementsByName(name)[0].innerHTML = '<img src="utils/CKAN-integration/images/visibility_off_white_18dp.svg">';
 
         }
 
@@ -725,9 +727,9 @@ var CKANRequest = /** @class */ (function () {
 
                 for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
                     if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
-                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>-</button></p>";
+                        text = text + "<p>"  + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><img src = 'utils/CKAN-integration/images/visibility_white_18dp.svg'/></button>&emsp;"+ mainGroupArray[i].datasetArray[j].title+"</p>";
                     } else {
-                        text = text + "<p>&emsp;" + mainGroupArray[i].datasetArray[j].title + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'>+</button></p>";
+                        text = text + "<p>"  + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><img src = 'utils/CKAN-integration/images/visibility_off_white_18dp.svg'/></button>&emsp;"+ mainGroupArray[i].datasetArray[j].title+"</p>";
                     }
                 }
                 //text=text+"<br>";
@@ -756,6 +758,7 @@ var CKANRequest = /** @class */ (function () {
         };
 
         wmsModel.url = url;
+        wmsModel.iconUrl="utils/CKAN-integration/images/WMS_icon";
         wmsModel.name = mainGroupArray[data[0]].datasetArray[data[1]].title
         wmsModel.tooltip = mainGroupArray[data[0]].datasetArray[data[1]].title + " - WMS";
 
