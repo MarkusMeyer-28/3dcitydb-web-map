@@ -302,12 +302,17 @@ var CKANRequest = /** @class */ (function () {
         entities.show = true;
         //console.log(document.getElementsByName(name)[0].innerHTML);
         //console.log('<img src="utils/CKAN-integration/images/visibility_off_white_18dp.svg">')
-        if (document.getElementsByName(name)[0].innerHTML == '<img src="utils/CKAN-integration/images/visibility_off_white_18dp.svg">') {
+        if (document.getElementsByName(name)[0].innerHTML == '<span class="material-icons md-12">check_box_outline_blank</span>') {
             //split name to get information on which dataset should be added
             var chars = name.split("/");
 
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].spatial);
-            document.getElementsByName(name)[0].innerHTML = '<img src="utils/CKAN-integration/images/visibility_white_18dp.svg">';
+            document.getElementsByName(name)[0].innerHTML = '<span class="material-icons md-12">check_box</span>';
+            if (document.getElementById("ConnectionInfo").style.display == "block" && document.getElementById("ConnectionTitle").innerHTML == chars[2]) {
+                var tableString = document.getElementById("connTable").innerHTML;
+                var newTableString = tableString.replace("check_box_outline_blank", "check_box");
+                document.getElementById("connTable").innerHTML = newTableString;
+            }
             var groupstring = ""; // parse groupArray
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].groups.length; index++) {
                 groupstring = groupstring + mainGroupArray[chars[0]].datasetArray[chars[1]].groups[index].display_name + ", ";
@@ -431,15 +436,19 @@ var CKANRequest = /** @class */ (function () {
             CKANRequest.prototype.parseSpatial(mainGroupArray[chars[0]].datasetArray[chars[1]], entityDescription);
 
 
-        } else if (document.getElementsByName(name)[0].innerHTML == '<img src="utils/CKAN-integration/images/visibility_white_18dp.svg">') {
+        } else if (document.getElementsByName(name)[0].innerHTML == '<span class="material-icons md-12">check_box</span>') {
             var chars = name.split("/");
             //console.log("Remove");
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             var entity = cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             entity.show = !entity.show;
             cesiumViewer.flyTo(cesiumViewer.entities);
-            document.getElementsByName(name)[0].innerHTML = '<img src="utils/CKAN-integration/images/visibility_off_white_18dp.svg">';
-
+            document.getElementsByName(name)[0].innerHTML = '<span class="material-icons md-12">check_box_outline_blank</span>';
+            if (document.getElementById("ConnectionInfo").style.display == "block" && document.getElementById("ConnectionTitle").innerHTML == chars[2]) {
+                var tableString = document.getElementById("connTable").innerHTML;
+                var newTableString = tableString.replace("check_box", "check_box_outline_blank");
+                document.getElementById("connTable").innerHTML = newTableString;
+            }
         }
 
         //document.getElementsByName("R"+name)[0].style.display="block";
@@ -607,12 +616,12 @@ var CKANRequest = /** @class */ (function () {
             if (exists) {
                 var name = ind + "/" + connData.title;
                 console.log(name)
-                if (document.getElementsByName(name)[0].innerHTML == "+") {//dataset exists but is currently not visible
-                    spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>+</button></td></tr>";
+                if (document.getElementsByName(name)[0].innerHTML == '<span class="material-icons md-12">check_box_outline_blank</span>') {//dataset exists but is currently not visible
+                    spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-18'>check_box_outline_blank</span></button></td></tr>";
                     //CKANRequest.prototype.addToMap(name);  
                 }
                 else {//entity already visible
-                    spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>-</button></td></tr>";
+                    spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-18'>check_box</span></button></td></tr>";
 
                 }
             }
@@ -620,7 +629,7 @@ var CKANRequest = /** @class */ (function () {
                 mainGroupArray[mainGroupArray.length - 1].datasetArray.push(connData);
                 var name = `${mainGroupArray.length - 1}/${mainGroupArray[mainGroupArray.length - 1].datasetArray.length - 1}`
                 name = name + "/" + connData.title;
-                spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name);CKANRequest.prototype.spatialPlusMinus()'>+</button></td></tr>";
+                spatialString = "<tr><th>Spatial</th><td><button type='button' id='ConnectionSpatialAdd' class='cesium-button' name='" + name + "' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-18'>check_box_outline_blank</span></button></td></tr>";
                 CKANRequest.prototype.refreshResultWindow();
 
             }
@@ -690,11 +699,11 @@ var CKANRequest = /** @class */ (function () {
         document.getElementById("ConnectionInfo").style.display = "none";
     }
     CKANRequest.prototype.spatialPlusMinus = function () {
-        if (document.getElementById("ConnectionSpatialAdd").innerHTML == "+") {
-            document.getElementById("ConnectionSpatialAdd").innerHTML = "-";
+        if (document.getElementById("ConnectionSpatialAdd").innerHTML == '<span class="material-icons md-18">check_box</span>') {
+            document.getElementById("ConnectionSpatialAdd").innerHTML = '<span class="material-icons md-18">check_box_outline_blank</span>';
         }
         else {
-            document.getElementById("ConnectionSpatialAdd").innerHTML = "+";
+            document.getElementById("ConnectionSpatialAdd").innerHTML = '<span class="material-icons md-18">check_box</span>';
         }
     }
     CKANRequest.prototype.parseSpatial = function (dataset, entityDescription) {
@@ -705,7 +714,7 @@ var CKANRequest = /** @class */ (function () {
         cesiumViewer.dataSources.add(dataSource);
         var dataSources = cesiumViewer.dataSources._dataSources;
         var entityArray = dataSources[dataSources.length - 1]._entityCollection._entities._array;
-        
+
         for (let index = 0; index < entityArray.length; index++) {
             entityArray[index].description = entityDescription;
             entityArray[index].name = dataset.title;
@@ -713,7 +722,7 @@ var CKANRequest = /** @class */ (function () {
             entityArray[index]._id = dataset.title;
             cesiumViewer.entities.add(entityArray[index]);
         }
-        
+
         cesiumViewer.flyTo(cesiumViewer.entities);
     }
     CKANRequest.prototype.refreshResultWindow = function () {
@@ -727,9 +736,9 @@ var CKANRequest = /** @class */ (function () {
 
                 for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
                     if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
-                        text = text + "<p>"  + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><img src = 'utils/CKAN-integration/images/visibility_white_18dp.svg'/></button>&emsp;"+ mainGroupArray[i].datasetArray[j].title+"</p>";
+                        text = text + "<p>" + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;" + mainGroupArray[i].datasetArray[j].title + "</p>";
                     } else {
-                        text = text + "<p>"  + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><img src = 'utils/CKAN-integration/images/visibility_off_white_18dp.svg'/></button>&emsp;"+ mainGroupArray[i].datasetArray[j].title+"</p>";
+                        text = text + "<p>" + "<button id='AddButton' name='" + i + "/" + j + "/" + mainGroupArray[i].datasetArray[j].title + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;" + mainGroupArray[i].datasetArray[j].title + "</p>";
                     }
                 }
                 //text=text+"<br>";
@@ -745,7 +754,7 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.addWMS = async function (name) {
         var data = name.split("/");
         var url = mainGroupArray[data[0]].datasetArray[data[1]].resources[data[2]].url;
-        var dataset = fetch(url + "Service=WMS&Version=1.1.1&Request=GetCapabilities").then((resp) => resp.text()).then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+        var dataset = fetch(url + "Service=WMS&Request=GetCapabilities").then((resp) => resp.text()).then(str => new window.DOMParser().parseFromString(str, "text/xml"))
             .then(function (data) { return data; });
         wmsModel = {
             name: '',
@@ -758,7 +767,7 @@ var CKANRequest = /** @class */ (function () {
         };
 
         wmsModel.url = url;
-        wmsModel.iconUrl="utils/CKAN-integration/images/WMS_icon";
+        wmsModel.iconUrl = "https://banner2.cleanpng.com/20180409/udq/kisspng-computer-icons-web-map-service-layer-5acb54ec0f8346.8689149915232749880636.jpg";
         wmsModel.name = mainGroupArray[data[0]].datasetArray[data[1]].title
         wmsModel.tooltip = mainGroupArray[data[0]].datasetArray[data[1]].title + " - WMS";
 
@@ -774,23 +783,39 @@ var CKANRequest = /** @class */ (function () {
             opt.innerHTML = "No layers found";
             selector.appendChild(opt);
             document.getElementById("LayerWindow").style.display = "block";
-            document.getElementById("WMSLayerButton").style.display="none";
+            document.getElementById("WMSLayerButton").style.display = "none";
             return;
         }
-        
+
         for (let index = 0; index < layers.length; index++) {
             //console.log(layers[index].outerHTML.indexOf("queryable"))
             if (layers[index].attributes.queryable != undefined) {
-                var layerName = layers[index].children[0].innerHTML;
+                //console.log(layers[index])
+                var layerMetadata = layers[index].children;
+                var layerName;
+                var layerTitle;
+                for (let index = 0; index < layerMetadata.length; index++) {
+                    if (layerMetadata[index].tagName == "Name") {
+                        layerName = layerMetadata[index].innerHTML;
+                    }
+                    if (layerMetadata[index].tagName == "Title") {
+                        layerTitle = layerMetadata[index].innerHTML;
+                    }
+
+
+
+                }
+
                 var opt = document.createElement('option');
+                console.log(layerTitle + layerName);
                 opt.value = layerName;
-                opt.innerHTML = layerName;
+                opt.innerHTML = layerTitle;
                 selector.appendChild(opt);
             }
 
         }
         document.getElementById("LayerWindow").style.display = "block"
-        document.getElementById("WMSLayerButton").style.display="block";
+        document.getElementById("WMSLayerButton").style.display = "block";
         //console.log(addWmsViewModel);
 
         //console.log(addWmsViewModel.url);
@@ -798,7 +823,7 @@ var CKANRequest = /** @class */ (function () {
     }
     CKANRequest.prototype.wmsLayerToMap = function () {
         var selLayer = document.getElementById("layerSelector");
-        var layer = selLayer.options[selLayer.selectedIndex].innerHTML;
+        var layer = selLayer.options[selLayer.selectedIndex].value;
         wmsModel.layers = layer;
         CKANRequest.prototype.addWebMapServiceProvider(wmsModel);
         document.getElementById("LayerWindow").style.display = "none";

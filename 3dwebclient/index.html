@@ -83,7 +83,7 @@
     <!-- URL controller -->
     <script src="utils/UrlController.js"></script>
     <!-- CKAN Integration -->
-
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="utils/CKAN-integration/CKANRequest.js"></script>
     <script src="utils/CKAN-integration/MainGroup.js"></script>
 
@@ -93,6 +93,8 @@
         @import url(css/MobileFullscreenStyles.css);
         @import url(../ThirdParty/Cesium/Widgets/InfoBox/InfoBoxDescription.css);
         @import url(css/SplashWindow.css);
+
+        @import url(css/CKANExtension.css);
 
         html,
         body,
@@ -219,201 +221,6 @@
             display: none;
             background: rgba(42, 42, 42, 0.5);
             border: 3px #505050 solid;
-        }
-
-
-
-        #CKAN_UI {
-            border-radius: 5px;
-            padding: 5px;
-            position: absolute;
-            left: 0pt;
-            font-family: "Arial";
-            z-index: 99980;
-            width: 100%;
-        }
-
-        #CKAN_Button {
-            left: 320pt;
-            position: absolute;
-            width: 230px;
-
-        }
-
-        #urlInput {
-            left: 320pt;
-            top: 30pt;
-            position: absolute;
-            padding-top: 10px;
-            padding-left: 5px;
-            padding-bottom: 10px;
-            padding-right: 15px;
-            width: 210px;
-            background: rgba(42, 42, 42, 0.5);
-            color: rgb(255, 255, 255);
-            border: 3px #505050 solid;
-            font-size: 9pt;
-            text-align: right;
-
-
-        }
-
-        #temporalInput {
-            display: none;
-            text-align: right;
-            padding-top: 10px;
-        }
-
-        #ResultWindow {
-
-            background: rgba(42, 42, 42, 0.5);
-            color: rgb(255, 255, 255);
-            border: 4px #505050 solid;
-            position: absolute;
-            left: 10px;
-            top: 30pt;
-            width: 305pt;
-            display: none;
-        }
-
-        #ResultHeadline {
-            background: #505050;
-            font-size: 12pt;
-            padding-left: 5px;
-            padding-top: 3px;
-            padding-bottom: 5px;
-        }
-
-        #CKAN_Results {
-            padding-top: 5px;
-            padding-left: 5px;
-            font-size: 10pt;
-            z-index: 1;
-            overflow-y: auto;
-            max-height: 530px;
-
-
-        }
-
-        #CloseCKANButton {
-            left: 280pt;
-            top: -3pt;
-            position: absolute;
-            width: 32px;
-            display: none;
-            z-index: 9000;
-
-
-        }
-
-        #MinCKANButton {
-            left: 254pt;
-            top: -3pt;
-            position: absolute;
-            width: 32px;
-            display: none;
-            z-index: 8999;
-            align-items: center;
-            align-self: center;
-
-
-        }
-
-        #MaxCKANButton {
-            left: 254pt;
-            top: -3pt;
-            position: absolute;
-            width: 32px;
-            display: none;
-            z-index: 8999;
-            align-items: center;
-
-
-        }
-
-        #AddButton {
-            vertical-align: middle;
-            padding-left: 10px;
-            font-size: 7pt;
-            position: relative;
-
-        }
-
-        #RemoveButton {
-            vertical-align: middle;
-            padding-left: 10px;
-            font-size: 5pt;
-            position: relative;
-            display: none;
-        }
-
-        #custom_infoBoxTable {
-            overflow-y: auto;
-            overflow-x: auto;
-            max-height: 550px;
-
-        }
-
-        #ConnectionInfo {
-
-            max-height: 460px;
-            min-height: 460px;
-            display: none;
-            position: absolute;
-            min-width: 300px;
-            max-width: 300px;
-            right: 500px;
-            top: 180px;
-            z-index: 9001;
-
-            color: rgb(255, 255, 255);
-
-
-        }
-
-        #custom_connectionTable {
-            overflow-y: auto;
-            overflow-x: auto;
-            max-height: 419px;
-            min-height: 419px;
-            min-width: 276px;
-            max-width: 276px;
-            background: rgba(42, 42, 42, 0.9);
-            border: 2px #505050 solid;
-        }
-
-        #LayerWindow {
-
-
-            z-index: 9002;
-            position: absolute;
-            top: 250px;
-
-            right: 500px;
-            width: 220px;
-            display: none;
-        }
-
-        #LayerTitle {
-            color: rgb(255, 255, 255);
-
-        }
-
-        #Layerbox {
-            background: rgba(42, 42, 42, 0.9);
-
-            border: 2px #505050 solid;
-            z-index: 9002;
-            width: 196px;
-            height: 50px;
-
-        }
-
-        #WMSLayerButton {
-            position: absolute;
-            top: 60px;
-            left: 7px;
-            font-size: 9pt
         }
     </style>
 </head>
