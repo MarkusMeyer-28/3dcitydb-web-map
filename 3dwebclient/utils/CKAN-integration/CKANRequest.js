@@ -788,9 +788,9 @@ var CKANRequest = /** @class */ (function () {
         }
 
         for (let index = 0; index < layers.length; index++) {
-            //console.log(layers[index].outerHTML.indexOf("queryable"))
-            if (layers[index].attributes.queryable != undefined) {
-                //console.log(layers[index])
+            //console.log(layers[index].attributes.queryable)
+            if (layers[index].attributes.queryable != undefined && layers[index].attributes.queryable.nodeValue == "1") {
+
                 var layerMetadata = layers[index].children;
                 var layerName;
                 var layerTitle;
@@ -807,7 +807,7 @@ var CKANRequest = /** @class */ (function () {
                 }
 
                 var opt = document.createElement('option');
-                console.log(layerTitle + layerName);
+                //console.log(layerTitle + layerName);
                 opt.value = layerName;
                 opt.innerHTML = layerTitle;
                 selector.appendChild(opt);
