@@ -326,10 +326,11 @@ var CKANRequest = /** @class */ (function () {
                     resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><button id='WMSButton' name='" + chars[0] + "/" + chars[1] + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
                         "</td></tr>";
                 }
-                resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
+                else {
+                    resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
                     mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>" +
                     "</td></tr>";
-
+                }
             }
             var relationshipObjectString = "";
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length);
