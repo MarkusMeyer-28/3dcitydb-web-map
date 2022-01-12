@@ -203,3 +203,28 @@
     left: 7px;
     font-size: 9pt
 }
+#LoadedLayersWindow{
+    position:absolute;
+    top: 610px;
+    left: 10px;
+    
+    font-size: 10pt;
+    background: rgba(42, 42, 42, 0.5);
+    color: rgb(255, 255, 255);
+    border: 2px #505050 solid;
+    max-width: 305pt;
+    display:none;
+}
+#LoadedLayersTitle{
+    background: #505050;
+    
+    padding-left: 2px;
+    padding-top: 3px;
+    padding-bottom: 5px;
+    padding-right: 2px;
+}
+#LoadedLayersList{
+    padding-top: 3px;
+    padding-left: 3px;
+    padding-bottom: 3px;
+}

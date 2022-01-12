@@ -84,7 +84,7 @@
     <script src="utils/UrlController.js"></script>
     <!-- CKAN Integration -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="utils/CKAN-integration/CKANRequest.js"></script>
+    <script src="utils/CKAN-integration/CKANRequest2.js"></script>
     <script src="utils/CKAN-integration/MainGroup.js"></script>
 
     <style>
@@ -682,6 +682,16 @@
                 </select>
                 <button id="WMSLayerButton" type="button" class="cesium-button"
                     onclick="CKANRequest.prototype.wmsLayerToMap()">Add</button>
+            </div>
+        </div>
+        <div id="LoadedLayersWindow">
+            <div id="LoadedLayersTitle">Imagery Layers</div>
+            <div id="LoadedLayersList">
+                <table>
+                    <tbody id="LoadedLayersTable">
+
+                    </tbody>
+                </table>
             </div>
         </div>
 
