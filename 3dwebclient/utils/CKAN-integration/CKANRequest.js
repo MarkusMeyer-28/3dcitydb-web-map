@@ -38,7 +38,7 @@ var CKANRequest = /** @class */ (function () {
 
         //if called the first time replace the iframe with a new div
         if (setUp == false) {
-            //replace the iframe with a new div and add an EventListener to for selected Entities
+            //replace the iframe with a new div and add an EventListener for selected Entities, iFrame is not deleted and is used for wms information
 
             var tableDiv = document.getElementById("custom_infoBoxTable")
             if (Cesium.defined(tableDiv)) {
@@ -68,7 +68,7 @@ var CKANRequest = /** @class */ (function () {
                     console.log('Deselected.');
                 }
             });
-            //viewModel for WMS Layer Management
+            //viewModel for WMS Layer Management inspired of:
             //https://sandcastle.cesium.com/?src=Imagery%20Layers%20Manipulation.html&label=All
             imageryLayers = cesiumViewer.imageryLayers;
             viewModel = {
@@ -77,43 +77,10 @@ var CKANRequest = /** @class */ (function () {
                 upLayer: null,
                 downLayer: null,
                 selectedLayer: null,
-                isSelectableLayer: function (layer) {
-                    return this.baseLayers.indexOf(layer) >= 0;
-                },
-                raise: function (layer, index) {
-                    imageryLayers.raise(layer);
-                    viewModel.upLayer = layer;
-                    viewModel.downLayer = viewModel.layers[Math.max(0, index - 1)];
-                    updateLayerList();
-                    window.setTimeout(function () {
-                        viewModel.upLayer = viewModel.downLayer = null;
-                    }, 10);
-                },
-                lower: function (layer, index) {
-                    imageryLayers.lower(layer);
-                    viewModel.upLayer =
-                        viewModel.layers[
-                        Math.min(viewModel.layers.length - 1, index + 1)
-                        ];
-                    viewModel.downLayer = layer;
-                    updateLayerList();
-                    window.setTimeout(function () {
-                        viewModel.upLayer = viewModel.downLayer = null;
-                    }, 10);
-                },
-                canRaise: function (layerIndex) {
-                    return layerIndex > 0;
-                },
-                canLower: function (layerIndex) {
-                    return layerIndex >= 0 && layerIndex < imageryLayers.length - 1;
-                },
+
             };
             setUp = true;
         }
-
-        //console.log(tableDiv);
-        //var cesiumInfo = document.querySelectorAll('div.cesium-infoBox')[0];
-        //cesiumInfo.appendChild(tableDiv);
 
         CKANRequest.prototype.getDatasets();
     }
@@ -179,9 +146,9 @@ var CKANRequest = /** @class */ (function () {
                 if (CKANRequest.prototype.compareTime(startdate, enddate, res.begin_collection_date, res.end_collection_date)) {
                     results.push(res);
 
-                    //console.log("innerhalb");
+
                 }
-                //console.log("außerhalb");
+
 
             }
             else {
@@ -193,9 +160,7 @@ var CKANRequest = /** @class */ (function () {
         //console.log(tempResponseData.result.results.length);
         console.log(results);
 
-        //console.log(url);
 
-        //groups = await CKANRequest.prototype.getMainGroups(url);
 
         //group results according to the MainGroups
         async function setGroups() {
@@ -203,10 +168,7 @@ var CKANRequest = /** @class */ (function () {
                 if (groups.length == 0) {
                     setTimeout(setGroups, 1000);
                 } else {
-                    //console.log(groups.length);
-                    //
-                    //console.log("loop")
-                    //var text = "<dl>";
+
 
 
                     for (let i = 0; i < groups.length; i++) {
@@ -292,32 +254,7 @@ var CKANRequest = /** @class */ (function () {
 
 
     };
-    /*
-    CKANRequest.prototype.sendHttpRequest = function (method, url, data) {
-        //HTTPRequest function
-        var promise = new Promise(function (resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open(method, url);
-            xhr.responseType = 'json';
-            if (data) {
-                xhr.setRequestHeader('Content-Type', 'application/json');
-            }
-            xhr.onload = function () {
-                if (xhr.status >= 400) {
-                    reject(xhr.response);
-                }
-                else {
-                    resolve(xhr.response);
-                }
-            };
-            xhr.onerror = function () {
-                reject('Something went wrong!');
-            };
-            xhr.send(JSON.stringify(data));
-        });
-        return promise;
-    };
-    */
+
     CKANRequest.prototype.closeResults = function () {
         //Close Button in Result Window
         document.getElementById("ResultWindow").style.display = "none";
@@ -416,7 +353,7 @@ var CKANRequest = /** @class */ (function () {
                 }
             }
 
-            //Entity Description is displayed in the Infobox if an entitiy is selected
+            //Entity Description is displayed in the customInfobox if an entitiy is selected
             var entityDescription = '<table class="cesium-infoBox-defaultTable"><tbody>' +
                 "<tr><th>Author</th><td>" +
                 mainGroupArray[chars[0]].datasetArray[chars[1]].author +
@@ -482,13 +419,16 @@ var CKANRequest = /** @class */ (function () {
 
 
         } else if (document.getElementsByName(name)[0].innerHTML == '<span class="material-icons md-12">check_box</span>') {
+            // entity should be made invisible if button was an checked box
             var chars = name.split("/");
             //console.log("Remove");
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             var entity = cesiumViewer.entities.getById(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             entity.show = !entity.show;
             cesiumViewer.flyTo(cesiumViewer.entities);
+            //make button an unchecked box
             document.getElementsByName(name)[0].innerHTML = '<span class="material-icons md-12">check_box_outline_blank</span>';
+            //if a connectiontable is open with the entity the checkbox in the table has to be altered
             if (document.getElementById("ConnectionInfo").style.display == "block" && document.getElementById("ConnectionTitle").innerHTML == chars[2]) {
                 var tableString = document.getElementById("connTable").innerHTML;
                 var newTableString = tableString.replace("check_box", "check_box_outline_blank");
@@ -761,6 +701,7 @@ var CKANRequest = /** @class */ (function () {
         var entityArray = dataSources[dataSources.length - 1]._entityCollection._entities._array;
 
         for (let index = 0; index < entityArray.length; index++) {
+            //descr is used because description would be displayed using the iframe which is not wanted
             entityArray[index].descr = entityDescription;
             entityArray[index].name = dataset.title;
             entityArray[index].id = dataset.title;
@@ -867,6 +808,7 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.wmsLayerToMap = function () {
+        //the selected layer of the selector is added to the wmsModel
         var selLayer = document.getElementById("layerSelector");
         var layer = selLayer.options[selLayer.selectedIndex].value;
         wmsModel.layers = layer;
@@ -876,20 +818,9 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.addWebMapServiceProvider = function (wmsViewModel) {
-
+        //add the wms imagery as an imageryLayer to the map
         imageryLayers = cesiumViewer.imageryLayers;
-        /*var layer = imageryLayers.addImageryProvider(
-            new Cesium.WebMapServiceImageryProvider({
-                url: wmsViewModel.url.trim(),
-                layers: wmsViewModel.layers.trim(),
-                parameters: {
-                    transparent: true,
-                    format: "image/png",
-                },
-            })
-        );
-        layer.name = wmsViewModel.name;
-        */
+
         addAdditionalLayerOption(wmsViewModel.name,
             new Cesium.WebMapServiceImageryProvider({
                 url: wmsViewModel.url.trim(),
@@ -902,148 +833,14 @@ var CKANRequest = /** @class */ (function () {
             1.0,
             true);
         updateLayerList();
-        //dataLayers.push(layer);
 
-        //https://sandcastle.cesium.com/?src=Imagery%20Layers%20Manipulation.html&label=All
-        /*
-                var viewModel = {
-                    layers: [],
-                    baseLayers: [],
-                    upLayer: null,
-                    downLayer: null,
-                    selectedLayer: null,
-                    isSelectableLayer: function (layer) {
-                        return this.baseLayers.indexOf(layer) >= 0;
-                    },
-                    raise: function (layer, index) {
-                        imageryLayers.raise(layer);
-                        viewModel.upLayer = layer;
-                        viewModel.downLayer = viewModel.layers[Math.max(0, index - 1)];
-                        updateLayerList();
-                        window.setTimeout(function () {
-                            viewModel.upLayer = viewModel.downLayer = null;
-                        }, 10);
-                    },
-                    lower: function (layer, index) {
-                        imageryLayers.lower(layer);
-                        viewModel.upLayer =
-                            viewModel.layers[
-                            Math.min(viewModel.layers.length - 1, index + 1)
-                            ];
-                        viewModel.downLayer = layer;
-                        updateLayerList();
-                        window.setTimeout(function () {
-                            viewModel.upLayer = viewModel.downLayer = null;
-                        }, 10);
-                    },
-                    canRaise: function (layerIndex) {
-                        return layerIndex > 0;
-                    },
-                    canLower: function (layerIndex) {
-                        return layerIndex >= 0 && layerIndex < imageryLayers.length - 1;
-                    },
-                };
-        
-                var baseLayers = viewModel.baseLayers;
-        
-                Cesium.knockout.track(viewModel);
-        
-                function addBaseLayerOption(name, imageryProvider) {
-                    var layer;
-                    if (typeof imageryProvider === "undefined") {
-                        layer = imageryLayers.get(0);
-                        viewModel.selectedLayer = layer;
-                    } else {
-                        layer = new Cesium.ImageryLayer(imageryProvider);
-                    }
-        
-                    layer.name = name;
-                    baseLayers.push(layer);
-                }
-                function updateLayerList() {
-                    var numLayers = imageryLayers.length;
-                    viewModel.layers.splice(0, viewModel.layers.length);
-                    for (var i = numLayers - 1; i >= 0; --i) {
-                        viewModel.layers.push(imageryLayers.get(i));
-                    }
-                }
-                addBaseLayerOption(wmsViewModel.name,layer);
-                updateLayerList();
-                //Bind the viewModel to the DOM elements of the UI that call for it.
-                var toolbar = document.getElementById("toolbar");
-                Cesium.knockout.applyBindings(viewModel, toolbar);
-        
-                Cesium.knockout
-                    .getObservable(viewModel, "selectedLayer")
-                    .subscribe(function (baseLayer) {
-                        // Handle changes to the drop-down base layer selector.
-                        var activeLayerIndex = 0;
-                        var numLayers = viewModel.layers.length;
-                        for (var i = 0; i < numLayers; ++i) {
-                            if (viewModel.isSelectableLayer(viewModel.layers[i])) {
-                                activeLayerIndex = i;
-                                break;
-                            }
-                        }
-                        var activeLayer = viewModel.layers[activeLayerIndex];
-                        var show = activeLayer.show;
-                        var alpha = activeLayer.alpha;
-                        imageryLayers.remove(activeLayer, false);
-                        imageryLayers.add(baseLayer, numLayers - activeLayerIndex - 1);
-                        baseLayer.show = show;
-                        baseLayer.alpha = alpha;
-                        updateLayerList();
-                    });
-                    */
-        /*
-        var windowPosition = new Cesium.Cartesian2(cesiumViewer.container.clientWidth / 2, cesiumViewer.container.clientHeight / 2);
-        handler = new Cesium.ScreenSpaceEventHandler(cesiumViewer.scene.canvas);
-        handler.setInputAction(function () {
-            var pickRay = cesiumViewer.camera.getPickRay(windowPosition);
-            var featuresPromise = cesiumViewer.imageryLayers.pickImageryLayerFeatures(pickRay, cesiumViewer.scene);
-            if (!Cesium.defined(featuresPromise)) {
-                console.log('No features picked.');
-            } else {
-                var tableDiv=document.getElementById("custom_infoBoxTable");
-                    tableDiv.innerHTML = "";
-                Cesium.when(featuresPromise, function (features) {
-                    // This function is called asynchronously when the list if picked features is available.
-                    
-                    
-                    console.log('Number of features: ' + features.length);
-                    if (features.length > 0) {
-                        console.log('First feature name: ' + features[0].name);
-                        tableDiv.innerHTML+='First feature name: ' + features[0].name;
-                    }
-                });
-            }
-        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        */
-        /*
-        var baseLayerPickerViewModel = cesiumViewer.baseLayerPicker.viewModel;
-        var wmsProviderViewModel = new Cesium.ProviderViewModel({
-            name: wmsViewModel.name.trim(),
-            iconUrl: wmsViewModel.iconUrl.trim(),
-            tooltip: wmsViewModel.tooltip.trim(),
-            creationFunction: function () {
-                return new Cesium.WebMapServiceImageryProvider({
-                    url: new Cesium.Resource({ url: wmsViewModel.url.trim(), proxy: addWmsViewModel.proxyUrl.trim().length == 0 ? null : new Cesium.DefaultProxy(addWmsViewModel.proxyUrl.trim()) }),
-                    layers: wmsViewModel.layers.trim(),
-                    parameters: {
-                        transparent: true,
-                        format: "image/png",
-                    }
-                });
-            }
-        });
-        baseLayerPickerViewModel.imageryProviderViewModels.push(wmsProviderViewModel);
-        baseLayerPickerViewModel.selectedImagery = wmsProviderViewModel;*/
     }
     CKANRequest.prototype.closeLayerWindow = function () {
         document.getElementById("LayerWindow").style.display = "none";
     }
     //https://sandcastle.cesium.com/?src=Imagery%20Layers%20Manipulation.html&label=All
     function updateLayerList() {
+        //update the layers in the viewModel according to the imagery layers
         var numLayers = imageryLayers.length;
         viewModel.layers.splice(0, viewModel.layers.length);
         for (var i = numLayers - 1; i >= 0; --i) {
@@ -1052,16 +849,19 @@ var CKANRequest = /** @class */ (function () {
         updateLayerWindow();
     }
     function addAdditionalLayerOption(name, imageryProvider, alpha, show) {
-
+        // a new layer is added to the imagery layers
         var layer = imageryLayers.addImageryProvider(imageryProvider);
-        layer.alpha = Cesium.defaultValue(alpha, 0.5);
+        layer.alpha = Cesium.defaultValue(alpha, 1.0);
         layer.show = Cesium.defaultValue(show, true);
         layer.name = name;
         //Cesium.knockout.track(layer, ["alpha", "show", "name"]);
     }
     function updateLayerWindow() {
+        //the window where the layer options are listed gets updated according to the layers in the viewModel
         var layerList = document.getElementById("LoadedLayersTable");
         layerList.innerHTML = "";
+        //format: checkbox whether layer is shown   Name    alpha range     buttons to change "zValue"
+        //-1 because the basic imagery layer of Cesium should not be displayed as it should not be disabled or raised/lowered
         for (let index = 0; index < viewModel.layers.length - 1; index++) {
             layerList.innerHTML += "<tr><td><input id='box" +
                 index + "' type='checkbox' onclick='CKANRequest.prototype.checkVisible(id)' checked></td><td><span>" +
@@ -1071,9 +871,10 @@ var CKANRequest = /** @class */ (function () {
 
         }
         document.getElementById("LoadedLayersWindow").style.display = "block";
-        console.log(layerList.innerHTML);
+
     }
     CKANRequest.prototype.checkVisible = function (id) {
+        //when a checkbox is clicked the corresponding imagerylayer ahas to be shown or not shown
         var index = id.substring(3, id.length)
         var box = document.getElementById(id);
         if (box.checked) {
@@ -1083,7 +884,7 @@ var CKANRequest = /** @class */ (function () {
         }
     }
     CKANRequest.prototype.raiseLayer = function (id) {
-
+        //raise a layer 1 step
         var index = id.substring(3, id.length)
         if (index > 0) {
             imageryLayers.raise(viewModel.layers[index]);
@@ -1097,9 +898,10 @@ var CKANRequest = /** @class */ (function () {
         }
     }
     CKANRequest.prototype.lowerLayer = function (id) {
-
+        //lower a layer 1 step
         var index = id.substring(3, id.length)
-        if (index >= 0 && index < imageryLayers.length-2) {
+        //the basic imagery Layer of Cesium should always stay as the lowest layer ->-2
+        if (index >= 0 && index < imageryLayers.length - 2) {
             imageryLayers.lower(viewModel.layers[index]);
             viewModel.downLayer = viewModel.layers[index];
             viewModel.upLayer = viewModel.layers[Math.min(viewModel.layers.length - 1, index + 1)];
