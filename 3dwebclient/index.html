@@ -623,13 +623,17 @@
                 CKAN
                 Data</button>
         </div>
-
+        <div id="zoomButton">
+            <button type="button"  class="cesium-button" onclick="CKANRequest.prototype.zoomOnEntities()"><span class="material-icons md-12">
+                zoom_out_map
+                </span></button>
+        </div>
         <div id="urlInput">
             <label>URL: </label>
 
             <input id="urlCKAN" type="text" data-bind="value: url" value="https://catalog.gis.lrg.tum.de">
             <button id="additionalInput" type="button" style="width: 94%; top: 5pt; " class="cesium-button"
-                onclick="CKANRequest.prototype.openAdditionalInput()">Additional Input...</button>
+                onclick="CKANRequest.prototype.openAdditionalInput()"><span class='material-icons md-12'>expand_more</span></button>
             <div id="temporalInput">
                 <label>Start Date:</label>
                 <input id="startDate" type="date" style="text-align: right;">
@@ -644,15 +648,21 @@
             </div>
             <div id="CloseCKANButtonDiv">
                 <button id="CloseCKANButton" type="button" class="cesium-button"
-                    onclick="CKANRequest.prototype.closeResults()">x</button>
+                    onclick="CKANRequest.prototype.closeResults()"><span class="material-icons md-12">
+                        close
+                    </span></button>
             </div>
             <div id="MinCKANButtonDiv">
                 <button id="MinCKANButton" type="button" class="cesium-button"
-                    onclick="CKANRequest.prototype.minResults()">-</button>
+                    onclick="CKANRequest.prototype.minResults()"><span class="material-icons md-12">
+                        remove
+                    </span></button>
             </div>
             <div id="MaxCKANButtonDiv">
                 <button id="MaxCKANButton" type="button" class="cesium-button"
-                    onclick="CKANRequest.prototype.maxResults()">+</button>
+                    onclick="CKANRequest.prototype.maxResults()"><span class="material-icons md-12">
+                        add
+                    </span></button>
             </div>
             <div id="CKAN_Results">
                 <p>MainGroup</p>

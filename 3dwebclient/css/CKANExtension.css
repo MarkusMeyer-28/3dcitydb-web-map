@@ -20,7 +20,10 @@
     width: 230px;
 
 }
-
+#zoomButton{
+    position: absolute;
+    left:285pt;
+}
 #urlInput {
     left: 320pt;
     top: 30pt;
@@ -83,7 +86,9 @@
     width: 32px;
     display: none;
     z-index: 9000;
-
+    padding-left:9px;
+    padding-top: 6px;
+    padding-bottom: 4px;
 
 }
 
@@ -94,8 +99,10 @@
     width: 32px;
     display: none;
     z-index: 8999;
-    align-items: center;
-    align-self: center;
+    padding-left:10px;
+    padding-top: 6px;
+    padding-bottom: 4px;
+    
 
 
 }
@@ -107,7 +114,9 @@
     width: 32px;
     display: none;
     z-index: 8999;
-    align-items: center;
+    padding-left:10px;
+    padding-top: 6px;
+    padding-bottom: 4px;
 
 
 }

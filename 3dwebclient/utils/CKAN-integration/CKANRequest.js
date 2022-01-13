@@ -440,16 +440,20 @@ var CKANRequest = /** @class */ (function () {
     };
 
     CKANRequest.prototype.openAdditionalInput = function () {
+        
         //Temporal filters can be added to the CKAN Request
-        if (document.getElementById("additionalInput").innerHTML == "Additional Input...") {
-            document.getElementById("additionalInput").innerHTML = "Close Additional Input";
+        if (document.getElementById("additionalInput").innerHTML == '<span class="material-icons md-12" style="filter: none;">expand_more</span>'|document.getElementById("additionalInput").innerHTML == '<span class="material-icons md-12">expand_more</span>') {
+            document.getElementById("additionalInput").innerHTML = "<span class='material-icons md-12'>expand_less</span>";
             document.getElementById("temporalInput").style.display = "block";
-        } else if (document.getElementById("additionalInput").innerHTML == "Close Additional Input") {
-            document.getElementById("additionalInput").innerHTML = "Additional Input...";
+        } else if (document.getElementById("additionalInput").innerHTML == '<span class="material-icons md-12">expand_less</span>') {
+            document.getElementById("additionalInput").innerHTML = "<span class='material-icons md-12'>expand_more</span>";
             document.getElementById("temporalInput").style.display = "none";
         }
 
 
+    }
+    CKANRequest.prototype.zoomOnEntities=function(){
+        cesiumViewer.flyTo(cesiumViewer.entities);
     }
     CKANRequest.prototype.compareTime = function (startdate, enddate, collectionStart, collectionEnd) {
         //return false if collectionStart or end is outside the queried time frame
