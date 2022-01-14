@@ -304,13 +304,20 @@ var CKANRequest = /** @class */ (function () {
             var resourcesString = '';
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].resources.length; index++) {
                 if (mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].format == "WMS") {
+
                     resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><button id='WMSButton' name='" + chars[0] + "/" + chars[1] + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
                         "</td></tr>";
                 }
                 else {
-                    resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
-                        mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>" +
-                        "</td></tr>";
+                    if (mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].restricted.search("public") != -1) {
+                        resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
+                            mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>" +
+                            "</td></tr>";
+                    }
+                    else {
+                        resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td>restricted non public resource: (<a href='" +
+                            mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>)</td></tr>"
+                    }
                 }
             }
             var relationshipObjectString = "";
@@ -440,9 +447,9 @@ var CKANRequest = /** @class */ (function () {
     };
 
     CKANRequest.prototype.openAdditionalInput = function () {
-        
+
         //Temporal filters can be added to the CKAN Request
-        if (document.getElementById("additionalInput").innerHTML == '<span class="material-icons md-12" style="filter: none;">expand_more</span>'|document.getElementById("additionalInput").innerHTML == '<span class="material-icons md-12">expand_more</span>') {
+        if (document.getElementById("additionalInput").innerHTML == '<span class="material-icons md-12" style="filter: none;">expand_more</span>' | document.getElementById("additionalInput").innerHTML == '<span class="material-icons md-12">expand_more</span>') {
             document.getElementById("additionalInput").innerHTML = "<span class='material-icons md-12'>expand_less</span>";
             document.getElementById("temporalInput").style.display = "block";
         } else if (document.getElementById("additionalInput").innerHTML == '<span class="material-icons md-12">expand_less</span>') {
@@ -452,7 +459,7 @@ var CKANRequest = /** @class */ (function () {
 
 
     }
-    CKANRequest.prototype.zoomOnEntities=function(){
+    CKANRequest.prototype.zoomOnEntities = function () {
         cesiumViewer.flyTo(cesiumViewer.entities);
     }
     CKANRequest.prototype.compareTime = function (startdate, enddate, collectionStart, collectionEnd) {
@@ -703,14 +710,25 @@ var CKANRequest = /** @class */ (function () {
         cesiumViewer.dataSources.add(dataSource);
         var dataSources = cesiumViewer.dataSources._dataSources;
         var entityArray = dataSources[dataSources.length - 1]._entityCollection._entities._array;
-
-        for (let index = 0; index < entityArray.length; index++) {
+        if (entityArray.length > 1) {
+            cesiumViewer.entities.add(new Cesium.Entity({ id: dataset.title }));
+            for (let index = 0; index < entityArray.length; index++) {
+                entityArray[index].descr = entityDescription;
+                entityArray[index].name = dataset.title;
+                entityArray[index].id = dataset.title;
+                entityArray[index].parent=cesiumViewer.entities.getById(dataset.title);
+                cesiumViewer.entities.add(entityArray[index]);
+            }
+            
+        }
+        else {
             //descr is used because description would be displayed using the iframe which is not wanted
-            entityArray[index].descr = entityDescription;
-            entityArray[index].name = dataset.title;
-            entityArray[index].id = dataset.title;
-            entityArray[index]._id = dataset.title;
-            cesiumViewer.entities.add(entityArray[index]);
+            entityArray[0].descr = entityDescription;
+            entityArray[0].name = dataset.title;
+            entityArray[0].id = dataset.title;
+
+            entityArray[0]._id = dataset.title;
+            cesiumViewer.entities.add(entityArray[0]);
         }
 
         cesiumViewer.flyTo(cesiumViewer.entities);
