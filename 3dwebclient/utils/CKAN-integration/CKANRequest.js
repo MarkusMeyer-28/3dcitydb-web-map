@@ -303,21 +303,23 @@ var CKANRequest = /** @class */ (function () {
 
             var resourcesString = '';
             for (let index = 0; index < mainGroupArray[chars[0]].datasetArray[chars[1]].resources.length; index++) {
+                resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td>";
+                if (mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].restricted.search("public") == -1) {
+                    resourcesString = resourcesString + "restricted non public resource: "
+                }
                 if (mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].format == "WMS") {
 
-                    resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><button id='WMSButton' name='" + chars[0] + "/" + chars[1] + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
+                    resourcesString = resourcesString + "<button id='WMSButton' name='" + chars[0] + "/" + chars[1] + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
                         "</td></tr>";
                 }
+                else if (mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].format == "GeoJSON") {
+                    resourcesString = resourcesString + "<button id='GeoJSONButton' name='" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + ";" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].name + ";" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].description +
+                        "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addGeoJSON(name)'>GeoJSON: " + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</button>"
+                }
                 else {
-                    if (mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].restricted.search("public") != -1) {
-                        resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
-                            mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>" +
-                            "</td></tr>";
-                    }
-                    else {
-                        resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td>restricted non public resource: (<a href='" +
-                            mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>)</td></tr>"
-                    }
+                    resourcesString = resourcesString + "<a href='" +
+                        mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "' target='_blank'>" + mainGroupArray[chars[0]].datasetArray[chars[1]].resources[index].url + "</a>" +
+                        "</td></tr>";
                 }
             }
             var relationshipObjectString = "";
@@ -531,12 +533,19 @@ var CKANRequest = /** @class */ (function () {
 
         var resourcesString = ''; //parse connected Resources display them using links
         for (let index = 0; index < connData.resources.length; index++) {
+            resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td>";
+            if (connData.resources[index].restricted.search("public") == -1) {
+                resourcesString = resourcesString + "restricted non public resource: "
+            }
             if (connData.resources[index].format == "WMS") {
-                resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><button id='WMSButton' name='" + connData.resources[index].url + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
+                resourcesString = resourcesString + "<button id='WMSButton' name='" + connData.resources[index].url + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
                     "</td></tr>";
             }
+            else if (connData.resources[index].format == "GeoJSON") {
+                resourcesString = resourcesString + "<button id='WMSButton' name='" + connData.resources[index].url + ";" + connData.resources[index].name + ";" + connData.resources[index].description + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addGeoJSON(name)'>GeoJSON: " + connData.resources[index].url + "</button>"
+            }
             else {
-                resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td><a href='" +
+                resourcesString = resourcesString + "<a href='" +
                     connData.resources[index].url + "' target='_blank'>" + connData.resources[index].url + "</a>" +
                     "</td></tr>";
             }
@@ -702,24 +711,73 @@ var CKANRequest = /** @class */ (function () {
             document.getElementById("ConnectionSpatialAdd").innerHTML = '<span class="material-icons md-18">check_box</span>';
         }
     }
+    CKANRequest.prototype.addGeoJSON = async function (resource) {
+        var data=resource.split(";"); //resource format: url;name;description
+        var url=data[0];
+        var name=data[1];
+        var description=data[2];
+        var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
+            return data;
+        }).catch(function (error) {
+            console.log(error);
+        });
+        var geojson = await dataset;
+        //console.log(geojson);
+        //const obj = JSON.parse(geojson);
+        var dataSource = Cesium.GeoJsonDataSource.load(geojson, { fill: Cesium.Color.RED.withAlpha(0.5), });
+        cesiumViewer.dataSources.add(dataSource);
+        var dataSources = cesiumViewer.dataSources._dataSources;
+        var entityArray = dataSources[dataSources.length - 1]._entityCollection._entities._array;
+        if (entityArray.length > 1) {
+            //if there are more then one entities for a dataset a parent entity has to be created 
+            //so that the different entities can be modified using a single id
+            //descr is used because description would be displayed using the iframe which is not wanted
+            cesiumViewer.entities.add(new Cesium.Entity({ id: name }));
+            for (let index = 0; index < entityArray.length; index++) {
+                entityArray[index].descr = description;
+                entityArray[index].name = name;
+                entityArray[index].id = name;
+                entityArray[index].parent = cesiumViewer.entities.getById(name);
+                cesiumViewer.entities.add(entityArray[index]);
+            }
+
+        }
+        else {
+            //if only one entity is part of the resource there is no need for a paren entity
+            //descr is used because description would be displayed using the iframe which is not wanted
+            entityArray[0].descr = description;
+            entityArray[0].name = name;
+            entityArray[0].id = name;
+
+            entityArray[0]._id = name;
+            cesiumViewer.entities.add(entityArray[0]);
+        }
+        
+       
+        cesiumViewer.flyTo(cesiumViewer.entities);
+
+    }
     CKANRequest.prototype.parseSpatial = function (dataset, entityDescription) {
         //parse spatial attribute
         var spatial = dataset.spatial;
+        //console.log(spatial);
         const obj = JSON.parse(spatial);
         var dataSource = Cesium.GeoJsonDataSource.load(obj, { fill: Cesium.Color.RED.withAlpha(0.5), });
         cesiumViewer.dataSources.add(dataSource);
         var dataSources = cesiumViewer.dataSources._dataSources;
         var entityArray = dataSources[dataSources.length - 1]._entityCollection._entities._array;
         if (entityArray.length > 1) {
+            //if there are more then one entities for a dataset a parent entity has to be created 
+            //so that the different entities can be modified using a single id
             cesiumViewer.entities.add(new Cesium.Entity({ id: dataset.title }));
             for (let index = 0; index < entityArray.length; index++) {
                 entityArray[index].descr = entityDescription;
                 entityArray[index].name = dataset.title;
                 entityArray[index].id = dataset.title;
-                entityArray[index].parent=cesiumViewer.entities.getById(dataset.title);
+                entityArray[index].parent = cesiumViewer.entities.getById(dataset.title);
                 cesiumViewer.entities.add(entityArray[index]);
             }
-            
+
         }
         else {
             //descr is used because description would be displayed using the iframe which is not wanted
