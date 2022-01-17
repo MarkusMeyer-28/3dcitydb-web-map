@@ -716,12 +716,18 @@ var CKANRequest = /** @class */ (function () {
         var url=data[0];
         var name=data[1];
         var description=data[2];
+        if(cesiumViewer.entities.getById(name)!=undefined){
+            cesiumViewer.entities.getById(name).show=true;
+            return;
+        }
         var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
             return data;
         }).catch(function (error) {
             console.log(error);
         });
+        description+="<button id='RemoveGeoJSON' name='"+name+"' class='cesium-button' onclick='CKANRequest.prototype.removeGeoJSON(name)'>Remove From Map</button>"
         var geojson = await dataset;
+        
         //console.log(geojson);
         //const obj = JSON.parse(geojson);
         var dataSource = Cesium.GeoJsonDataSource.load(geojson, { fill: Cesium.Color.RED.withAlpha(0.5), });
@@ -756,6 +762,13 @@ var CKANRequest = /** @class */ (function () {
        
         cesiumViewer.flyTo(cesiumViewer.entities);
 
+    }
+    CKANRequest.prototype.removeGeoJSON= function(name){
+        var entity=cesiumViewer.entities.getById(name);
+        entity.show=false;
+        
+        //cesiumViewer.entities.remove(entity);
+        //console.log(cesiumViewer.entities);
     }
     CKANRequest.prototype.parseSpatial = function (dataset, entityDescription) {
         //parse spatial attribute
