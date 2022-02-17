@@ -86,6 +86,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="utils/CKAN-integration/CKANRequest.js"></script>
     <script src="utils/CKAN-integration/MainGroup.js"></script>
+    <script src="utils/CKAN-integration/OrgGroup.js"></script>
 
     <style>
         @import url(../ThirdParty/Cesium/Widgets/widgets.css);
@@ -646,6 +647,17 @@
             <div id="ResultHeadline">
                 <label>Catalog Entries</label>
             </div>
+            <div id="GroupByButtonDiv">
+                <button id="OpenGroupByWindow" type="button" class="cesium-button" onclick="CKANRequest.prototype.openGroupBy()" title="Open Group By Window"><span class="material-icons md-12">
+                    more_horiz
+                    </span></button>
+            </div>
+            <div id="GroupByWindow">
+                <select id="GroupBySelector" onchange="CKANRequest.prototype.refreshResultWindow()">
+                    <option value="MainGroup">Group by Main Groups</option>
+                    <option value="Organization">Group by Organizations</option>
+                </select>
+            </div>
             <div id="CloseCKANButtonDiv">
                 <button id="CloseCKANButton" type="button" class="cesium-button"
                     onclick="CKANRequest.prototype.closeResults()"><span class="material-icons md-12">
@@ -674,6 +686,7 @@
             </div>
 
         </div>
+        
         <div id="ConnectionInfo">
             <div id="ConnectionTitle" class="cesium-infoBox-title">Test</div>
             <button type="button" class="cesium-infoBox-close"
@@ -695,7 +708,9 @@
             </div>
         </div>
         <div id="LoadedLayersWindow">
-            <div id="LoadedLayersTitle">Imagery Layers</div>
+            <button type="button" class="cesium-infoBox-close"
+                onclick="CKANRequest.prototype.closeLoadedLayersWindow()">×</button>
+            <div id="LoadedLayersTitle">WMS Layers</div>
             <div id="LoadedLayersList">
                 <table>
                     <tbody id="LoadedLayersTable">

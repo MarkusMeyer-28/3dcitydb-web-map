@@ -1,8 +1,9 @@
-class MainGroup{
-    constructor(name, datasetArray){
-        this.name=name;
+class OrgGroup{
+    constructor(orga, datasetArray){
+        this.organization=orga;
         this.datasetArray=datasetArray;
     }
+
     getDataset(id){
         for (let index = 0; index < this.datasetArray.length; index++) {
             const dataset = this.datasetArray[index];

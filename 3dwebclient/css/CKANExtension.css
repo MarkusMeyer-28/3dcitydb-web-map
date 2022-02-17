@@ -78,6 +78,28 @@
 
 
 }
+#OpenGroupByWindow{
+    left: 90pt;
+    top: -3pt;
+    position: absolute;
+    width: 32px;
+    display: none;
+    z-index: 9000;
+    padding-left:9px;
+    padding-top: 6px;
+    padding-bottom: 4px;
+}
+#GroupByWindow{
+    left: 110pt;
+    top: -3pt;
+    position: absolute;
+    width: 32px;
+    display: none;
+    z-index: 9000;
+    padding-left:9px;
+    padding-top: 6px;
+    padding-bottom: 4px;
+}
 
 #CloseCKANButton {
     left: 280pt;
