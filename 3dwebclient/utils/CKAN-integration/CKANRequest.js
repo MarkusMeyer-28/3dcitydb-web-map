@@ -352,6 +352,10 @@ var CKANRequest = /** @class */ (function () {
                     resourcesString = resourcesString + "<button id='GeoJSONButton' name='" + entry.url + ";" + entry.name + ";" + entry.resources[index].description +
                         "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addGeoJSON(name)'>GeoJSON: " + entry.url + "</button>"
                 }
+                else if (entry.resources[index].format =="KML"){
+                    resourcesString = resourcesString + "<button id='KMLButton' name='" + id + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addKML(name)'>KML</button>" +
+                        "</td></tr>";
+                }
                 else {
                     resourcesString = resourcesString + "<a href='" +
                     entry.resources[index].url + "' target='_blank'>" + entry.resources[index].url + "</a>" +
@@ -907,6 +911,21 @@ var CKANRequest = /** @class */ (function () {
         document.getElementById("MinCKANButton").style.display = "block";
         document.getElementById("OpenGroupByWindow").style.display = "block";
     }
+    CKANRequest.prototype.addKML= async function(name){
+        var data=name.split("/");
+        var entry=this.getDataset(data[0]);
+        var resource=entry.resources[data[1]];
+        var url=resource.url
+        var options={
+            url: url.trim(),
+            name: resource.name.trim(),
+            layerDataType: 'kml',
+            layerClampToGround: true,
+        }
+        var _layers=new Array();
+        _layers.push(new CitydbKmlLayer(options));
+        loadLayerGroup(_layers);
+    }
     CKANRequest.prototype.addWMS = async function (name) {
         var data = name.split("/");
         var entry=this.getDataset(data[0]);
@@ -962,7 +981,9 @@ var CKANRequest = /** @class */ (function () {
 
 
                 }
-
+                if(layerTitle.startsWith("<!")){
+                    layerTitle=layerTitle.substring(3,layerTitle.length-2);
+                }
                 var opt = document.createElement('option');
                 //console.log(layerTitle + layerName);
                 opt.value = layerName;
