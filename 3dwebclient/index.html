@@ -625,8 +625,9 @@
                 Data</button>
         </div>
         <div id="zoomButton">
-            <button type="button"  class="cesium-button" onclick="CKANRequest.prototype.zoomOnEntities()"><span class="material-icons md-12">
-                zoom_out_map
+            <button type="button" class="cesium-button" onclick="CKANRequest.prototype.zoomOnEntities()"><span
+                    class="material-icons md-12">
+                    zoom_out_map
                 </span></button>
         </div>
         <div id="urlInput">
@@ -634,12 +635,19 @@
 
             <input id="urlCKAN" type="text" data-bind="value: url" value="https://catalog.gis.lrg.tum.de">
             <button id="additionalInput" type="button" style="width: 94%; top: 5pt; " class="cesium-button"
-                onclick="CKANRequest.prototype.openAdditionalInput()"><span class='material-icons md-12'>expand_more</span></button>
-            <div id="temporalInput">
-                <label>Start Date:</label>
-                <input id="startDate" type="date" style="text-align: right;">
-                <label>End Date:</label>
-                <input id="endDate" type="date" style="text-align: right;">
+                onclick="CKANRequest.prototype.openAdditionalInput()"><span
+                    class="material-icons md-18">filter_alt</span></button>
+            <div id="additionalInputDiv">
+                <div id="temporalInput">
+                    <label>Start Date:</label>
+                    <input id="startDate" type="date" style="text-align: right;">
+                    <label>End Date:</label>
+                    <input id="endDate" type="date" style="text-align: right;">
+                </div>
+                <div id="searchCatalog">
+                    <input id="searchTerm" type="text" placeholder="Search Catalog...">
+                    
+                </div>
             </div>
 
         </div>
@@ -648,8 +656,10 @@
                 <label>Catalog Entries</label>
             </div>
             <div id="GroupByButtonDiv">
-                <button id="OpenGroupByWindow" type="button" class="cesium-button" onclick="CKANRequest.prototype.openGroupBy()" title="Open Group By Window"><span class="material-icons md-12">
-                    more_horiz
+                <button id="OpenGroupByWindow" type="button" class="cesium-button"
+                    onclick="CKANRequest.prototype.openGroupBy()" title="Open Group By Window"><span
+                        class="material-icons md-12">
+                        more_horiz
                     </span></button>
             </div>
             <div id="GroupByWindow">
@@ -686,7 +696,7 @@
             </div>
 
         </div>
-        
+
         <div id="ConnectionInfo">
             <div id="ConnectionTitle" class="cesium-infoBox-title">Test</div>
             <button type="button" class="cesium-infoBox-close"

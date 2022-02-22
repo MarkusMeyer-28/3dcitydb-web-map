@@ -41,11 +41,25 @@
 
 
 }
-
-#temporalInput {
+#additionalInputDiv{
     display: none;
+    padding-top: 10px;
+}
+#temporalInput {
+    
     text-align: right;
     padding-top: 10px;
+}
+#searchCatalog{
+    padding-top: 10px;
+    text-align: left;
+}
+#searchButton{
+    text-align: center;
+    padding-right: 3px;
+    padding-left: 3px;
+    padding-top: 3px;
+    padding-bottom: 1px;
 }
 
 #ResultWindow {
@@ -258,4 +272,10 @@
     padding-top: 3px;
     padding-left: 3px;
     padding-bottom: 3px;
+}
+#additionalInput{
+    padding-right: 3px;
+    padding-left: 3px;
+    padding-top: 3px;
+    padding-bottom: 1px;
 }
