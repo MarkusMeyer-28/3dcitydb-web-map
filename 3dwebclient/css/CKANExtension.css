@@ -260,6 +260,13 @@
     max-width: 305pt;
     display:none;
 }
+#WMSOpener{
+    position:absolute;
+    top: 610px;
+    left: 10px;
+    display:none;
+    font-size: 10pt;
+}
 #LoadedLayersTitle{
     background: #505050;
     

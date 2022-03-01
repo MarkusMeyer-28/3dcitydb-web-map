@@ -164,7 +164,7 @@ var CKANRequest = /** @class */ (function () {
         if (searchTerm != "") {
             unfilteredRes = CKANRequest.prototype.filterSearchTerm(unfilteredRes, searchedEntries);
         }
-        results=unfilteredRes;
+        results = unfilteredRes;
         //console.log(tempResponseData.result.results.length);
         console.log(results);
 
@@ -236,7 +236,7 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.filterSearchTerm = function (array, searchedEntries) {
         var filteredArray = [];
         for (let index = 0; index < array.length; index++) {
-            const res =array[index];
+            const res = array[index];
             var isPart = false;
             for (let j = 0; j < searchedEntries.length; j++) {
                 if (searchedEntries[j].id == res.id) {
@@ -1056,6 +1056,8 @@ var CKANRequest = /** @class */ (function () {
         wmsModel.name = selLayer.options[selLayer.selectedIndex].innerHTML;
         CKANRequest.prototype.addWebMapServiceProvider(wmsModel);
         document.getElementById("LayerWindow").style.display = "none";
+        
+
 
     }
     CKANRequest.prototype.addWebMapServiceProvider = function (wmsViewModel) {
@@ -1074,6 +1076,7 @@ var CKANRequest = /** @class */ (function () {
             1.0,
             true);
         updateLayerList();
+
 
     }
     CKANRequest.prototype.closeLayerWindow = function () {
@@ -1106,7 +1109,7 @@ var CKANRequest = /** @class */ (function () {
         for (let index = 0; index < viewModel.layers.length - 1; index++) {
             layerList.innerHTML += "<tr><td><input id='box" +
                 index + "' type='checkbox' onclick='CKANRequest.prototype.checkVisible(id)' checked></td><td><span>" +
-                viewModel.layers[index].name + "</span></td><td><input type='range' min='0' max='1' step='0.01' value='" +
+                viewModel.layers[index].name + "</span></td><td><input id='opacityRange' name='"+index+"' title='Opacity' type='range' min='0' max='1' step='0.01' onchange='CKANRequest.prototype.changeAlpha(name, value)' value='" +
                 viewModel.layers[index].alpha + "'></td><td><button type='button' id='lay" + index + "' class='cesium-button' onclick='CKANRequest.prototype.raiseLayer(id)'>▲</button></td>" +
                 "<td><button type='button' id='lay" + index + "'class='cesium-button' onclick='CKANRequest.prototype.lowerLayer(id)'>▼</button></td></tr>";
 
@@ -1152,13 +1155,17 @@ var CKANRequest = /** @class */ (function () {
             }, 10);
         }
     }
+    CKANRequest.prototype.changeAlpha= function (index, value){
+        viewModel.layers[index].alpha=value;
+    }
     CKANRequest.prototype.closeLoadedLayersWindow = function () {
         document.getElementById("LoadedLayersWindow").style.display = "none";
-        for (let index = 0; index < viewModel.layers.length - 1; index++) {
-            viewModel.layers[index].show = false;
+        document.getElementById("WMSOpener").style.display="block";
 
-        }
-
+    }
+    CKANRequest.prototype.openLoadedLayersWindow= function(){
+        document.getElementById("LoadedLayersWindow").style.display = "block";
+        document.getElementById("WMSOpener").style.display="none";
     }
     CKANRequest.prototype.openGroupBy = function () {
         if (document.getElementById("GroupByWindow").style.display == "block") {
