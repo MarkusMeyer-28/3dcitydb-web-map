@@ -106,6 +106,7 @@ var CKANRequest = /** @class */ (function () {
         var searchedEntries;
         //console.log(startdate);
         if (searchTerm != "") {
+            document.getElementById("CKAN_Results").innerHTML ="Applying search Filter";
             searchedEntries = await CKANRequest.prototype.searchCatalog();
         }
 
@@ -117,7 +118,9 @@ var CKANRequest = /** @class */ (function () {
         var groups;
         var organizations;
         mainGroupArray = [];
+        document.getElementById("CKAN_Results").innerHTML ="Querying Groups...";
         groups = await CKANRequest.prototype.getMainGroups(url);
+        document.getElementById("CKAN_Results").innerHTML ="Querying Organizations...";
         organizations = await CKANRequest.prototype.getOrganizations(url);
         //console.log(organizations);
         //all datasets matching the url query
@@ -144,6 +147,7 @@ var CKANRequest = /** @class */ (function () {
         // get full representations of the datasets
         var unfilteredRes = [];
         for (var index = 0; index < data.results.length; index++) {
+            document.getElementById("CKAN_Results").innerHTML ="Loaded "+ index+" / "+ data.results.length+ " datasets";
             var tempUrl = url + "/api/3/action/package_show?id=" + data.results[index].id;
             var tempResponseData = data;
             //console.log(tempUrl);
@@ -554,14 +558,14 @@ var CKANRequest = /** @class */ (function () {
         cesiumViewer.flyTo(cesiumViewer.entities);
     }
     CKANRequest.prototype.compareTime = function (startdate, enddate, collectionStart, collectionEnd) {
-        //return false if collectionStart or end is outside the queried time frame
+        //return false if there is no temporal overlap, which is only happening if the inserted end date is before the collection startdate or the inserted start date is after the collection enddate
         if (collectionEnd == undefined || collectionEnd == "") {
             //if collectionEnd is not defined use today
             var today = new Date();
             collectionEnd = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
         }
         if (collectionStart == undefined || collectionStart == "") {
-            //if collectionStart is not defined use startdate --> start is always in time frame
+            //if collectionStart is not defined use startdate --> temporal overlap is only dependent on collection end
             collectionStart = startdate;
         }
         //parse date into array with year, month and day
@@ -571,40 +575,40 @@ var CKANRequest = /** @class */ (function () {
         collectionEndArray = collectionEnd.split("-");
 
         //compare year
-        if (parseInt(startArray[0]) > parseInt(collectionStartArray[0]) || parseInt(endArray[0]) < parseInt(collectionEndArray[0])) {
-            //collectionStart before queried startdate or collection end after queried enddate
+        if (parseInt(startArray[0]) > parseInt(collectionEndArray[0]) || parseInt(endArray[0]) < parseInt(collectionStartArray[0])) {
+            //collection end before queried startdate or collection start after queried enddate
             return false;
         }
 
-        if (parseInt(startArray[0]) == parseInt(collectionStartArray[0])) {
+        if (parseInt(startArray[0]) == parseInt(collectionEndArray[0])) {
             //Same year
-            if (parseInt(startArray[1]) > parseInt(collectionStartArray[1])) {
-                //collection Start month before queried start month
+            if (parseInt(startArray[1]) > parseInt(collectionEndArray[1])) {
+                //collection end month before queried start month
                 return false;
             }
-            if (parseInt(startArray[1]) == parseInt(collectionStartArray[1])) {
+            if (parseInt(startArray[1]) == parseInt(collectionEndArray[1])) {
                 //same month
-                if (parseInt(startArray[2]) > parseInt(collectionStartArray[2])) {
-                    // collection Start day before queried startday
+                if (parseInt(startArray[2]) > parseInt(collectionEndArray[2])) {
+                    // collection end day before queried startday
                     return false;
                 }
             }
         }
-        if (parseInt(endArray[0]) == parseInt(collectionEndArray[0])) {
+        if (parseInt(endArray[0]) == parseInt(collectionStartArray[0])) {
             //same year
-            if (parseInt(endArray[1]) < parseInt(collectionEndArray[1])) {
-                //collection end month after queried end month
+            if (parseInt(endArray[1]) < parseInt(collectionStartArray[1])) {
+                //collection start month after queried end month
                 return false;
             }
-            if (parseInt(endArray[1]) == parseInt(collectionEndArray[1])) {
+            if (parseInt(endArray[1]) == parseInt(collectionStartArray[1])) {
                 //same month
-                if (parseInt(endArray[2]) < parseInt(collectionEndArray[2])) {
-                    //collection end day after queried end day
+                if (parseInt(endArray[2]) < parseInt(collectionStartArray[2])) {
+                    //collection start day after queried end day
                     return false;
                 }
             }
         }
-        //startdate before collection Start and enddate after collection end
+        //overlap between both time periods
         return true;
     }
 
