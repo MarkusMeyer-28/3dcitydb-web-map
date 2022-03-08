@@ -111,7 +111,7 @@ var CKANRequest = /** @class */ (function () {
         }
 
         var url = document.getElementById('urlCKAN').value;
-        var packageUrl = url + "/api/3/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&sort=title desc&rows=99999999999999999";
+        var packageUrl = url + "/api\/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&sort=title desc&rows=99999999999999999";
 
         var results = []; //all results fitting the spatial input parameters
 
@@ -148,7 +148,7 @@ var CKANRequest = /** @class */ (function () {
         var unfilteredRes = [];
         for (var index = 0; index < data.results.length; index++) {
             document.getElementById("CKAN_Results").innerHTML ="Loaded "+ index+" / "+ data.results.length+ " datasets";
-            var tempUrl = url + "/api/3/action/package_show?id=" + data.results[index].id;
+            var tempUrl = url + "/api/action/package_show?id=" + data.results[index].id;
             var tempResponseData = data;
             //console.log(tempUrl);
             var result = fetch(tempUrl).then((resp) => resp.json()).then(function (data) {
@@ -258,7 +258,7 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.getOrganizations = async function (url) {
         //Use CKAN API to get Organizations of Catalog
         var orgas = [];
-        var orgaListURL = url + "/api/3/action/organization_list";
+        var orgaListURL = url + "/api/action/organization_list";
         var orgaList = fetch(orgaListURL).then((resp) => resp.json()).then(function (data) {
             return data.result;
         }).catch(function (error) {
@@ -267,7 +267,7 @@ var CKANRequest = /** @class */ (function () {
         var result = await orgaList;
         for (let index = 0; index < result.length; index++) {
 
-            var tempOrgaURL = url + "/api/3/action/organization_show?id=" + result[index];
+            var tempOrgaURL = url + "/api/action/organization_show?id=" + result[index];
             var orga = fetch(tempOrgaURL).then((resp) => resp.json()).then(function (data) {
                 return data.result;
             }).catch(function (error) {
@@ -286,7 +286,7 @@ var CKANRequest = /** @class */ (function () {
 
 
         //console.log(url);
-        var groupListURL = url + "/api/3/action/group_list";
+        var groupListURL = url + "/api/action/group_list";
         //console.log(groupListURL);
         var grouplist = fetch(groupListURL).then((resp) => resp.json()).then(function (data) {
             return data.result;
@@ -297,7 +297,7 @@ var CKANRequest = /** @class */ (function () {
         l = result.length;
         for (let index = 0; index < result.length; index++) {
             groups[groups.length] = result[index];
-            var tempGroupURL = url + "/api/3/action/group_show?id=" + result[index];
+            var tempGroupURL = url + "/api/action/group_show?id=" + result[index];
             //console.log(tempGroupURL);
 
             var mainGroup = fetch(tempGroupURL).then((resp) => resp.json()).then(function (data) {
@@ -403,7 +403,7 @@ var CKANRequest = /** @class */ (function () {
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length);
             for (let index = 0; index < entry.relationships_as_object.length; index++) {
                 var id = entry.relationships_as_object[index].__extras.subject_package_id;
-                var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+                var url = document.getElementById('urlCKAN').value + "/api/action/package_show?id=" + id;
                 var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
                     return data.result;
                 }).catch(function (error) {
@@ -423,7 +423,7 @@ var CKANRequest = /** @class */ (function () {
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length);
             for (let index = 0; index < entry.relationships_as_subject.length; index++) {
                 var id = entry.relationships_as_subject[index].__extras.object_package_id;
-                var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+                var url = document.getElementById('urlCKAN').value + "/api/action/package_show?id=" + id;
                 var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
                     return data.result;
                 }).catch(function (error) {
@@ -542,7 +542,7 @@ var CKANRequest = /** @class */ (function () {
     }
     CKANRequest.prototype.searchCatalog = async function () {
         var searchTerm = document.getElementById("searchTerm").value;
-        packageUrl = document.getElementById('urlCKAN').value + "/api/3/action/package_search?q=" + searchTerm;
+        packageUrl = document.getElementById('urlCKAN').value + "/api/action/package_search?q=" + searchTerm;
         var datasets = fetch(packageUrl).then((resp) => resp.json()).then(function (data) {
             return data.result;
         })
@@ -649,7 +649,7 @@ var CKANRequest = /** @class */ (function () {
 
         for (let index = 0; index < connData.relationships_as_object.length; index++) {
             var id = connData.relationships_as_object[index].__extras.subject_package_id;
-            var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+            var url = document.getElementById('urlCKAN').value + "/api/action/package_show?id=" + id;
             var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
                 return data.result;
             }).catch(function (error) {
@@ -672,7 +672,7 @@ var CKANRequest = /** @class */ (function () {
         var relationshipSubjectString = "";
         for (let index = 0; index < connData.relationships_as_subject.length; index++) {
             var id = connData.relationships_as_subject[index].__extras.object_package_id;
-            var url = document.getElementById('urlCKAN').value + "/api/3/action/package_show?id=" + id;
+            var url = document.getElementById('urlCKAN').value + "/api/action/package_show?id=" + id;
             //get full representation of connected dataset
             var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
                 return data.result;
