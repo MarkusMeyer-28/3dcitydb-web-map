@@ -2,6 +2,7 @@ class OrgGroup{
     constructor(orga, datasetArray){
         this.organization=orga;
         this.datasetArray=datasetArray;
+        this.expanded=true;
     }
 
     getDataset(id){
@@ -13,6 +14,9 @@ class OrgGroup{
             
         }
         return -1;
+    }
+    setExpanded(expanded){
+        this.expanded=expanded;
     }
     
 }
