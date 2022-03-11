@@ -617,6 +617,12 @@
 
     </div>
     <!-- CKAN Extension -->
+    <div id="CKAN_Start">
+        <button id="CKAN_StartButton" class="cesium-button ces-toolbar-button" title="Start CKAN Extension"
+            onclick="CKANRequest.prototype.startCKANExtension()"><span class="material-icons md-18">
+                extension
+            </span></button>
+    </div>
     <div id="CKAN_UI">
 
         <div id="CKAN_Button">
@@ -646,7 +652,7 @@
                 </div>
                 <div id="searchCatalog">
                     <input id="searchTerm" type="text" placeholder="Search Catalog...">
-                    
+
                 </div>
             </div>
 
@@ -730,7 +736,8 @@
             </div>
         </div>
         <div id="WMSOpener">
-            <button type="button" class="cesium-button" onclick="CKANRequest.prototype.openLoadedLayersWindow()">WMS Layers</button>
+            <button type="button" class="cesium-button" onclick="CKANRequest.prototype.openLoadedLayersWindow()">WMS
+                Layers</button>
         </div>
 
 

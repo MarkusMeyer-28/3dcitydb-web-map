@@ -4,6 +4,22 @@
 .material-icons.md-36 { font-size: 36px; }
 .material-icons.md-48 { font-size: 48px; }
 
+#CKAN_Start{
+    position: absolute;
+    right: 11px;
+    top: 44px;
+    display: block;
+    width: 32px;
+    height: 32px;
+    padding:0px
+}
+#CKAN_StartButton{
+   
+    padding: 5px;
+    display: block;
+    width: 32px;
+    height: 32px;
+}
 #CKAN_UI {
     border-radius: 5px;
     padding: 5px;
@@ -12,6 +28,7 @@
     font-family: "Arial";
     z-index: 99980;
     width: 100%;
+    display: none;
 }
 
 #CKAN_Button {
@@ -240,6 +257,9 @@
     width: 196px;
     height: 50px;
 
+}
+#layerSelector{
+    max-width: 190px;
 }
 
 #WMSLayerButton {
