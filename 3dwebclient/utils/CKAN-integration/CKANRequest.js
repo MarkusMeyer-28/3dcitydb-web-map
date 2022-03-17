@@ -15,7 +15,6 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.startCKANExtension = function () {
-        //if(document.getElementById("CKAN_StartButton").innerHTML)
         document.getElementById("CKAN_StartButton").innerHTML = '<span class="material-icons md-18" style="filter: none;">extension_off</span>';
         document.getElementById("CKAN_StartButton").onclick = function () { CKANRequest.prototype.closeCKANExtension() };
         document.getElementById("CKAN_UI").style.display = "block";
@@ -34,14 +33,7 @@ var CKANRequest = /** @class */ (function () {
         //make all entities invisible
         var entities = cesiumViewer.entities;
         //console.log(entities._entities._array.length);
-        if (entities._entities._array.length > 0) {
-            var x = document.getElementById("CKAN_Results");
-            var but = x.getElementsByClassName("cesium-button");
-            for (let index = 0; index < but.length; index++) {
-                but[index].innerHTML = "+";
-
-            }
-        }
+        
         for (let index = 0; index < entities._entities._array.length; index++) {
             if (entities._entities._array[index].show = true) {
                 entities._entities._array[index].show = false;
@@ -108,13 +100,20 @@ var CKANRequest = /** @class */ (function () {
         var camPos = cam.positionCartographic;
 
         //get all input information
+
+        //get spatial filter
         var view = cam.computeViewRectangle(Cesium.Ellipsoid.WGS84);
         west = view.west * 180 / Cesium.Math.PI;
         east = view.east * 180 / Cesium.Math.PI;
         north = view.north * 180 / Cesium.Math.PI;
         south = view.south * 180 / Cesium.Math.PI;
+        
+
+        //get temporal filter
         var startdate = document.getElementById("startDate").value;
         var enddate = document.getElementById("endDate").value;
+
+        //get search filter
         var searchTerm = document.getElementById("searchTerm").value;
         var searchedEntries;
         //console.log(startdate);
@@ -239,6 +238,9 @@ var CKANRequest = /** @class */ (function () {
         await setGroups().then(console.log(mainGroupArray));
         console.log(orgGroupArray);
         CKANRequest.prototype.refreshResultWindow();
+        //visualize spatial filter
+        CKANRequest.prototype.visualizeSpatialFilter(west, north, east, south);
+        
     };
     CKANRequest.prototype.filterTemporal = function (array, startdate, enddate) {
         var filteredArray = [];
@@ -520,7 +522,7 @@ var CKANRequest = /** @class */ (function () {
             if (cesiumViewer.entities.getById(entry.title) != undefined) {
                 var entity = cesiumViewer.entities.getById(entry.title);
                 entity.show = !entity.show;
-                cesiumViewer.flyTo(cesiumViewer.entities);
+                cesiumViewer.flyTo(cesiumViewer.entities.getById(entry.title));
                 return;
             }
 
@@ -535,7 +537,7 @@ var CKANRequest = /** @class */ (function () {
             //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].title);
             var entity = cesiumViewer.entities.getById(entry.title);
             entity.show = !entity.show;
-            cesiumViewer.flyTo(cesiumViewer.entities);
+            //cesiumViewer.flyTo(cesiumViewer.entities);
             //make button an unchecked box
             document.getElementsByName(id)[0].innerHTML = '<span class="material-icons md-12">check_box_outline_blank</span>';
             //if a connectiontable is open with the entity the checkbox in the table has to be altered
@@ -912,7 +914,7 @@ var CKANRequest = /** @class */ (function () {
         }
 
 
-        cesiumViewer.flyTo(cesiumViewer.entities);
+        cesiumViewer.flyTo(cesiumViewer.entities.getById(name));
 
     }
     CKANRequest.prototype.removeGeoJSON = function (name) {
@@ -954,7 +956,7 @@ var CKANRequest = /** @class */ (function () {
             cesiumViewer.entities.add(entityArray[0]);
         }
 
-        cesiumViewer.flyTo(cesiumViewer.entities);
+        cesiumViewer.flyTo(cesiumViewer.entities.getById(dataset.title));
     }
     CKANRequest.prototype.refreshResultWindow = function () {
         var selector = document.getElementById("GroupBySelector").value;
@@ -1289,6 +1291,36 @@ var CKANRequest = /** @class */ (function () {
 
         }
         return -1;
+    }
+    CKANRequest.prototype.visualizeSpatialFilter = function (west, north, east, south) {
+        
+        const dataPointNW = { longitude: west, latitude: north, height: 0 };
+        const dataPointNE = { longitude: east, latitude: north, height: 0 };
+        const dataPointSW = { longitude: west, latitude: south, height: 0 };
+        const dataPointSE = { longitude: east, latitude: south, height: 0 };
+
+        const spatialFilter = cesiumViewer.entities.add({
+            polyline: {
+                positions: Cesium.Cartesian3.fromDegreesArray([
+                    dataPointNW.longitude,
+                    dataPointNW.latitude,
+                    dataPointNE.longitude,
+                    dataPointNE.latitude,
+                    dataPointSE.longitude,
+                    dataPointSE.latitude,
+                    dataPointSW.longitude,
+                    dataPointSW.latitude,
+                    dataPointNW.longitude,
+                    dataPointNW.latitude,
+                ]),
+                width: 3,
+                id:'spatialFilter',
+                material: Cesium.Color.BLUE,
+                clampToGround: true,
+            },
+        });
+        
+
     }
     return CKANRequest;
 }());
