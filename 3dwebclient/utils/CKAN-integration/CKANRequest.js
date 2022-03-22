@@ -33,7 +33,7 @@ var CKANRequest = /** @class */ (function () {
         //make all entities invisible
         var entities = cesiumViewer.entities;
         //console.log(entities._entities._array.length);
-        
+
         for (let index = 0; index < entities._entities._array.length; index++) {
             if (entities._entities._array[index].show = true) {
                 entities._entities._array[index].show = false;
@@ -107,7 +107,7 @@ var CKANRequest = /** @class */ (function () {
         east = view.east * 180 / Cesium.Math.PI;
         north = view.north * 180 / Cesium.Math.PI;
         south = view.south * 180 / Cesium.Math.PI;
-        
+
 
         //get temporal filter
         var startdate = document.getElementById("startDate").value;
@@ -240,7 +240,7 @@ var CKANRequest = /** @class */ (function () {
         CKANRequest.prototype.refreshResultWindow();
         //visualize spatial filter
         CKANRequest.prototype.visualizeSpatialFilter(west, north, east, south);
-        
+
     };
     CKANRequest.prototype.filterTemporal = function (array, startdate, enddate) {
         var filteredArray = [];
@@ -522,7 +522,7 @@ var CKANRequest = /** @class */ (function () {
             if (cesiumViewer.entities.getById(entry.title) != undefined) {
                 var entity = cesiumViewer.entities.getById(entry.title);
                 entity.show = !entity.show;
-                cesiumViewer.flyTo(cesiumViewer.entities.getById(entry.title));
+                //cesiumViewer.flyTo(cesiumViewer.entities.getById(entry.title));
                 return;
             }
 
@@ -914,7 +914,7 @@ var CKANRequest = /** @class */ (function () {
         }
 
 
-        cesiumViewer.flyTo(cesiumViewer.entities.getById(name));
+        //cesiumViewer.flyTo(cesiumViewer.entities.getById(name));
 
     }
     CKANRequest.prototype.removeGeoJSON = function (name) {
@@ -956,7 +956,7 @@ var CKANRequest = /** @class */ (function () {
             cesiumViewer.entities.add(entityArray[0]);
         }
 
-        cesiumViewer.flyTo(cesiumViewer.entities.getById(dataset.title));
+        //cesiumViewer.flyTo(cesiumViewer.entities.getById(dataset.title));
     }
     CKANRequest.prototype.refreshResultWindow = function () {
         var selector = document.getElementById("GroupBySelector").value;
@@ -982,10 +982,16 @@ var CKANRequest = /** @class */ (function () {
                     text = text + "<p><b>" + orgGroupArray[i].organization.display_name + "</b>  <button id='CollapseButton' name='" + orgGroupArray[i].organization.display_name + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.collapseOrg(name)'>-</button></p>";
 
                     for (let j = 0; j < orgGroupArray[i].datasetArray.length; j++) {
+                        var title=orgGroupArray[i].datasetArray[j].title;
+                        if(title.length>45){
+                            title=title.substring(0,43);
+                            title=title+"...";
+                            console.log(title);
+                        }
                         if (cesiumViewer.entities.getById(orgGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(orgGroupArray[i].datasetArray[j].title).show == true) {
-                            text = text + "<p>" + "<button id='AddButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;" + orgGroupArray[i].datasetArray[j].title + "</p>";
+                            text = text + "<p>" + "<button id='AddButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;<button class='link' id='title' name='"+orgGroupArray[i].datasetArray[j].id+"' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='"+orgGroupArray[i].datasetArray[j].title+"'>" + title + "</button><button id='InfoButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-18'>info</span></button></p>";
                         } else {
-                            text = text + "<p>" + "<button id='AddButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;" + orgGroupArray[i].datasetArray[j].title + "</p>";
+                            text = text + "<p>" + "<button id='AddButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;<button class='link' id='title' name='"+orgGroupArray[i].datasetArray[j].id+"' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='"+orgGroupArray[i].datasetArray[j].title+"'>" + title + "</button><button id='InfoButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-18'>info</span></button></p>";
                         }
                     }
                 } else {
@@ -1012,10 +1018,16 @@ var CKANRequest = /** @class */ (function () {
                 if (mainGroupArray[i].expanded) {
                     text = text + "<p><b>" + mainGroupArray[i].name + "</b>  <button id='CollapseButton' name='" + mainGroupArray[i].name + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.collapseGroup(name)'>-</button></p>";
                     for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
+                        var title=mainGroupArray[i].datasetArray[j].title;
+                        if(title.length>45){
+                            title=title.substring(0,43);
+                            title=title+"...";
+                            console.log(title);
+                        }
                         if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
-                            text = text + "<p>" + "<button id='AddButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;" + mainGroupArray[i].datasetArray[j].title + "</p>";
+                            text = text + "<p>" + "<button id='AddButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;<button class='link' id='title' name='" + mainGroupArray[i].datasetArray[j].id+"' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='"+mainGroupArray[i].datasetArray[j].title+"'>"+ title + "</button><button id='InfoButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-16'>info</span></button></p>";
                         } else {
-                            text = text + "<p>" + "<button id='AddButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;" + mainGroupArray[i].datasetArray[j].title + "</p>";
+                            text = text + "<p>" + "<button id='AddButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;<button class='link' id='title' name='" + mainGroupArray[i].datasetArray[j].id+"' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='"+mainGroupArray[i].datasetArray[j].title+"'>" + title + "</button><button id='InfoButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-16'>info</span></button></p>";
                         }
                     }
                 } else {
@@ -1085,7 +1097,7 @@ var CKANRequest = /** @class */ (function () {
         var data = name.split("/");
         var entry = this.getDataset(data[0]);
         var url = entry.resources[data[1]].url;
-        var dataset = fetch(url + "Service=WMS&Request=GetCapabilities").then((resp) => resp.text()).then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+        var dataset = fetch(url + "Service=WMS&Request=GetCapabilities").then((resp) => resp.text()).then(str => new window.DOMParser().parseFromString(str, "application/xml"))
             .then(function (data) { return data; });
         wmsModel = {
             name: '',
@@ -1094,17 +1106,29 @@ var CKANRequest = /** @class */ (function () {
             url: '',
             layers: '',
             additionalParameters: '',
-            proxyUrl: '/proxy/'
+            proxyUrl: '/proxy/',
+            legendURL: ''
         };
 
         wmsModel.url = url;
         wmsModel.iconUrl = "https://banner2.cleanpng.com/20180409/udq/kisspng-computer-icons-web-map-service-layer-5acb54ec0f8346.8689149915232749880636.jpg";
+
         //wmsModel.name = mainGroupArray[data[0]].datasetArray[data[1]].title
         wmsModel.tooltip = entry.title + " - WMS";
 
         var wmsData = await dataset;
 
+        //wmsModel.legendURL=
         var layers = wmsData.getElementsByTagName("Layer");
+        var legends = wmsData.getElementsByTagName("LegendURL");
+        var legendURL = [];
+        for (let index = 0; index < legends.length; index++) {
+            var hrefInd = legends[index].innerHTML.search("href");
+            var href = legends[index].innerHTML.substring(hrefInd, legends[index].innerHTML.length)
+            console.log(href)
+            //legendURL[index]=;
+
+        }
         var selector = document.getElementById("layerSelector");
         selector.innerHTML = "";
         //console.log(layers);
@@ -1117,34 +1141,34 @@ var CKANRequest = /** @class */ (function () {
             document.getElementById("WMSLayerButton").style.display = "none";
             return;
         }
-
+        //console.log(legendURL);
         for (let index = 0; index < layers.length; index++) {
             //console.log(layers[index].attributes.queryable)
-            //if (layers[index].attributes.queryable != undefined && layers[index].attributes.queryable.nodeValue == "1") {
+            if (layers[index].attributes.queryable != undefined && layers[index].attributes.queryable.nodeValue == "1") {
 
-            var layerMetadata = layers[index].children;
-            var layerName;
-            var layerTitle;
-            for (let index = 0; index < layerMetadata.length; index++) {
-                if (layerMetadata[index].tagName == "Name") {
-                    layerName = layerMetadata[index].innerHTML;
+                var layerMetadata = layers[index].children;
+                var layerName;
+                var layerTitle;
+                for (let index = 0; index < layerMetadata.length; index++) {
+                    if (layerMetadata[index].tagName == "Name") {
+                        layerName = layerMetadata[index].innerHTML;
+                    }
+                    if (layerMetadata[index].tagName == "Title") {
+                        layerTitle = layerMetadata[index].innerHTML;
+                    }
+
+
+
                 }
-                if (layerMetadata[index].tagName == "Title") {
-                    layerTitle = layerMetadata[index].innerHTML;
+                if (layerTitle.startsWith("<![CDATA")) {
+                    layerTitle = layerTitle.substring(9, layerTitle.length - 3);
                 }
-
-
-
+                var opt = document.createElement('option');
+                //console.log(layerTitle + layerName);
+                opt.value = layerName;
+                opt.innerHTML = layerTitle;
+                selector.appendChild(opt);
             }
-            if (layerTitle.startsWith("<![CDATA")) {
-                layerTitle = layerTitle.substring(9, layerTitle.length - 3);
-            }
-            var opt = document.createElement('option');
-            //console.log(layerTitle + layerName);
-            opt.value = layerName;
-            opt.innerHTML = layerTitle;
-            selector.appendChild(opt);
-            //}
 
         }
         document.getElementById("LayerWindow").style.display = "block"
@@ -1293,7 +1317,7 @@ var CKANRequest = /** @class */ (function () {
         return -1;
     }
     CKANRequest.prototype.visualizeSpatialFilter = function (west, north, east, south) {
-        
+
         const dataPointNW = { longitude: west, latitude: north, height: 0 };
         const dataPointNE = { longitude: east, latitude: north, height: 0 };
         const dataPointSW = { longitude: west, latitude: south, height: 0 };
@@ -1314,13 +1338,165 @@ var CKANRequest = /** @class */ (function () {
                     dataPointNW.latitude,
                 ]),
                 width: 3,
-                id:'spatialFilter',
+                id: 'spatialFilter',
                 material: Cesium.Color.BLUE,
                 clampToGround: true,
             },
         });
-        
 
+
+    }
+    CKANRequest.prototype.showInfo = async function (id) {
+        var entry = CKANRequest.prototype.getDataset(id);
+        
+        var groupstring = ""; // parse groupArray
+        for (let index = 0; index < entry.groups.length; index++) {
+            groupstring = groupstring + entry.groups[index].display_name + ", ";
+        }
+        // Remove last comma
+        groupstring = groupstring.substring(0, groupstring.length - 2);
+
+        var resourcesString = '';
+        for (let index = 0; index < entry.resources.length; index++) {
+            resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td>";
+            if (entry.resources[index].restricted.search("public") == -1) {
+                resourcesString = resourcesString + "restricted non public resource: "
+            }
+            if (entry.resources[index].format == "WMS") {
+
+                resourcesString = resourcesString + "<button id='WMSButton' name='" + id + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addWMS(name)'>WMS</button>" +
+                    "</td></tr>";
+            }
+            else if (entry.resources[index].format == "GeoJSON") {
+                resourcesString = resourcesString + "<button id='GeoJSONButton' name='" + entry.resources[index].url + ";" + entry.resources[index].name + ";" + entry.resources[index].description +
+                    "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addGeoJSON(name)'>GeoJSON: " + entry.resources[index].name + "</button>"
+            }
+            else if (entry.resources[index].format == "KML") {
+                resourcesString = resourcesString + "<button id='KMLButton' name='" + id + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addKML(name)'>KML</button>" +
+                    "</td></tr>";
+            }
+            else {
+                resourcesString = resourcesString + "<a href='" +
+                    entry.resources[index].url + "' target='_blank'>" + entry.resources[index].url + "</a>" +
+                    "</td></tr>";
+            }
+        }
+        var relationshipObjectString = "";
+        //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length);
+        for (let index = 0; index < entry.relationships_as_object.length; index++) {
+            var id = entry.relationships_as_object[index].__extras.subject_package_id;
+            var inFilter = checkID(id);
+            var url = document.getElementById('urlCKAN').value + "/api/action/package_show?id=" + id;
+            var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
+                return data.result;
+            }).catch(function (error) {
+                console.log(error);
+            });
+            var connData = await dataset;
+            //console.log(connData);
+            if (connData != undefined) {
+                //console.log("defined");
+                connDataArray.push(connData);
+                if (!inFilter) {
+                    relationshipObjectString += "<tr><th>Connection: " + entry.relationships_as_object[index].type + " as object</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connData.title + " (Not matching your set Filters!!!)</button></td></tr>";
+                }
+                else {
+                    relationshipObjectString += "<tr><th>Connection: " + entry.relationships_as_object[index].type + " as object</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connData.title + "</button></td></tr>";
+                }
+                connDataCount++;
+            }
+
+        }
+        var relationshipSubjectString = "";
+        //console.log(mainGroupArray[chars[0]].datasetArray[chars[1]].relationships_as_object.length);
+        for (let index = 0; index < entry.relationships_as_subject.length; index++) {
+            var id = entry.relationships_as_subject[index].__extras.object_package_id;
+            var inFilter = checkID(id);
+            var url = document.getElementById('urlCKAN').value + "/api/action/package_show?id=" + id;
+            var dataset = fetch(url).then((resp) => resp.json()).then(function (data) {
+                return data.result;
+            }).catch(function (error) {
+                console.log(error);
+            });
+            var connData = await dataset;
+            //console.log(connData);
+            if (connData != undefined) {
+                //console.log("defined");
+                connDataArray.push(connData);
+                if (!inFilter) {
+                    relationshipSubjectString += "<tr><th>Connection: " + entry.relationships_as_subject[index].type + " as subject</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connData.title + " (Not matching your set Filters!!!)</button></td></tr>";
+                }
+                else {
+                    relationshipSubjectString += "<tr><th>Connection: " + entry.relationships_as_subject[index].type + " as subject</th><td><button type='button' name='" + connDataCount + "' class='cesium-button' onclick='CKANRequest.prototype.showConnection(name)'>" + connData.title + "</button></td></tr>";
+                }
+                connDataCount++;
+            }
+        }
+
+        //Entity Description is displayed in the customInfobox if an entitiy is selected
+        var entityDescription = '<table class="cesium-infoBox-defaultTable"><tbody>' +
+            "<tr><th>Author</th><td>" +
+            entry.author +
+            "</td></tr>" +
+            "<tr><th>Maintainer</th><td>" +
+            entry.maintainer +
+            "</td></tr>" +
+            "<tr><th>Title</th><td>" +
+            entry.title +
+            "</td></tr>" +
+            "<tr><th>Language</th><td>" +
+            entry.language +
+            "</td></tr>" +
+            "<tr><th>ID</th><td>" +
+            entry.id +
+            "</td></tr>" +
+            "<tr><th>Type</th><td>" +
+            entry.type +
+            "</td></tr>" +
+            "<tr><th>State</th><td>" +
+            entry.state +
+            "</td></tr>" +
+            "<tr><th>Is Open</th><td>" +
+            entry.isopen +
+            "</td></tr>" +
+            "<tr><th>Organization</th><td>" +
+            entry.organization.title +
+            "</td></tr>" +
+            "<tr><th>Groups</th><td>" +
+            groupstring +
+            "</td></tr>" +
+            "<tr><th>URL</th><td>" +
+            entry.url +
+            "</td></tr>" +
+            "<tr><th>Num Resources</th><td>" +
+            entry.num_resources +
+            "</td></tr>" +
+            resourcesString +
+            relationshipSubjectString +
+            relationshipObjectString +
+            "<tr><th>Created</th><td>" +
+            entry.metadata_created +
+            "</td></tr>" +
+            "<tr><th>Last Modified</th><td>" +
+            entry.metadata_modified +
+            "</td></tr>" +
+            "<tr><th>Notes</th><td>" +
+            entry.notes +
+            "</td></tr>" +
+            "</tbody></table>";
+        document.getElementById("dataTable").innerHTML = entityDescription;
+        document.getElementById("MetadataTitle").innerHTML=entry.title;
+        document.getElementById("MetadataTable").style.display = "block";
+    }
+    CKANRequest.prototype.closeMetadataWindow = function () {
+        document.getElementById("MetadataTable").style.display = "none";
+    }
+    CKANRequest.prototype.zoomOnEntry=function(id){
+        var entry= CKANRequest.prototype.getDataset(id);
+        if(cesiumViewer.entities.getById(entry.title)!=undefined&&cesiumViewer.entities.getById(entry.title).show==true){
+            cesiumViewer.flyTo(cesiumViewer.entities.getById(entry.title));
+        }
+        
     }
     return CKANRequest;
 }());

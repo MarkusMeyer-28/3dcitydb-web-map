@@ -1,4 +1,5 @@
 .material-icons.md-12 { font-size: 12px; }
+.material-icons.md-16 { font-size: 16px; }
 .material-icons.md-18 { font-size: 18px; }
 .material-icons.md-24 { font-size: 24px; }
 .material-icons.md-36 { font-size: 36px; }
@@ -316,4 +317,46 @@
     margin-left: auto;
     margin-right: auto;
 
+}
+#InfoButton{
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 3px;
+    padding-bottom: 1px;
+}
+#MetadataTable{
+    position: absolute;
+    left: 320pt;
+    top: 90pt;
+    display: none;
+    width: 250pt;
+    height: 364pt;
+    background: rgba(42, 42, 42, 0.9);
+    border: 2px #505050 solid;
+}
+#MetadataTitle{
+    background: #505050;
+    font-size: 10pt;
+    color: white;
+    padding-left: 5px;
+    padding-top: 3px;
+    padding-bottom: 5px;
+}
+#custom_metadataTable{
+    overflow-y: auto;
+    overflow-x: auto;
+    height: 344pt;
+    width:250pt;
+    font-size: 13px;
+}
+#dataTable{
+    overflow-y: auto;
+    overflow-x: auto;
+    height: 300pt;
+    width:200pt
+}
+button.link{
+    background: none;
+    border:none;
+    color:white;
 }
