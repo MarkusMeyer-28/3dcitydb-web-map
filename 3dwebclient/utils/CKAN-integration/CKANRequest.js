@@ -1,4 +1,6 @@
 var CKANRequest = /** @class */ (function () {
+    var start;
+    var time;
     var register;
     var mainGroupArray = [];
     var orgGroupArray = [];
@@ -28,6 +30,7 @@ var CKANRequest = /** @class */ (function () {
     }
     CKANRequest.prototype.setUp = async function () {
         //reset registries
+        start = performance.now();
         mainGroupArray = [];
         orgGroupArray = [];
         //make all entities invisible
@@ -93,6 +96,7 @@ var CKANRequest = /** @class */ (function () {
         }
 
         CKANRequest.prototype.getDatasets();
+
     }
     CKANRequest.prototype.getDatasets = async function () {
         // Communication to the CKAN API,  filling the ResultWindow with the Catalog Entries
@@ -386,8 +390,12 @@ var CKANRequest = /** @class */ (function () {
             for (let index = 0; index < entry.groups.length; index++) {
                 groupstring = groupstring + entry.groups[index].display_name + ", ";
             }
+            var tagstring = ""; // parse tagArray
+            for (let index = 0; index < entry.tags.length; index++) {
+                tagstring = tagstring + entry.tags[index].display_name + ", ";
+            }
             // Remove last comma
-            groupstring = groupstring.substring(0, groupstring.length - 2);
+            tagstring = tagstring.substring(0, tagstring.length - 2);
 
             var resourcesString = '';
             for (let index = 0; index < entry.resources.length; index++) {
@@ -511,6 +519,30 @@ var CKANRequest = /** @class */ (function () {
                 "</td></tr>" +
                 "<tr><th>Last Modified</th><td>" +
                 entry.metadata_modified +
+                "</td></tr>" +
+                "<tr><th>Begin Collection Date</th><td>" +
+                entry.begin_collection_date +
+                "</td></tr>" +
+                "<tr><th>End Collection Date</th><td>" +
+                entry.end_collection_date +
+                "</td></tr>" +
+                "<tr><th>Name</th><td>" +
+                entry.name +
+                "</td></tr>" +
+                "<tr><th>Creator User ID</th><td>" +
+                entry.creator_user_id +
+                "</td></tr>" +
+                "<tr><th>License ID / License Title</th><td>" +
+                entry.license_id + " / " + entry.license_title +
+                "</td></tr>" +
+                "<tr><th>Revision ID</th><td>" +
+                entry.revision_id +
+                "</td></tr>" +
+                "<tr><th>Tags</th><td>" +
+                tagstring +
+                "</td></tr>" +
+                "<tr><th>Version</th><td>" +
+                entry.version +
                 "</td></tr>" +
                 "<tr><th>Notes</th><td>" +
                 entry.notes +
@@ -660,6 +692,13 @@ var CKANRequest = /** @class */ (function () {
         // Remove last comma
         groupstring = groupstring.substring(0, groupstring.length - 2);
 
+        var tagstring = ""; // parse tagArray
+        for (let index = 0; index < connData.tags.length; index++) {
+            tagstring = tagstring + connData.tags[index].display_name + ", ";
+        }
+        // Remove last comma
+        tagstring = tagstring.substring(0, tagstring.length - 2);
+
         var resourcesString = ''; //parse connected Resources display them using links
         for (let index = 0; index < connData.resources.length; index++) {
             resourcesString = resourcesString + "<tr><th>Resource " + (index + 1) + "</th><td>";
@@ -672,6 +711,10 @@ var CKANRequest = /** @class */ (function () {
             }
             else if (connData.resources[index].format == "GeoJSON") {
                 resourcesString = resourcesString + "<button id='WMSButton' name='" + connData.resources[index].url + ";" + connData.resources[index].name + ";" + connData.resources[index].description + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addGeoJSON(name)'>GeoJSON: " + connData.resources[index].name + "</button>"
+            }
+            else if (entry.resources[index].format == "KML") {
+                resourcesString = resourcesString + "<button id='KMLButton' name='" + connData.resources[index].id + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addKML(name)'>KML</button>" +
+                    "</td></tr>";
             }
             else {
                 resourcesString = resourcesString + "<a href='" +
@@ -832,6 +875,30 @@ var CKANRequest = /** @class */ (function () {
             "<tr><th>Last Modified</th><td>" +
             connData.metadata_modified +
             "</td></tr>" +
+            "<tr><th>Begin Collection Date</th><td>" +
+            connData.begin_collection_date +
+            "</td></tr>" +
+            "<tr><th>End Collection Date</th><td>" +
+            connData.end_collection_date +
+            "</td></tr>" +
+            "<tr><th>Name</th><td>" +
+            connData.name +
+            "</td></tr>" +
+            "<tr><th>Creator User ID</th><td>" +
+            connData.creator_user_id +
+            "</td></tr>" +
+            "<tr><th>License ID / License Title</th><td>" +
+            connData.license_id + " / " + connData.license_title +
+            "</td></tr>" +
+            "<tr><th>Revision ID</th><td>" +
+            connData.revision_id +
+            "</td></tr>" +
+            "<tr><th>Tags</th><td>" +
+            tagstring +
+            "</td></tr>" +
+            "<tr><th>Version</th><td>" +
+            connData.version +
+            "</td></tr>" +
             "<tr><th>Notes</th><td>" +
             connData.notes +
             "</td></tr>" +
@@ -969,6 +1036,8 @@ var CKANRequest = /** @class */ (function () {
             CKANRequest.prototype.refreshResultWindowOrganization();
             register = orgGroupArray;
         }
+        time = performance.now();
+        console.log("Time: " + (time - start) + " ms.")
 
     }
     CKANRequest.prototype.refreshResultWindowOrganization = function () {
@@ -982,16 +1051,16 @@ var CKANRequest = /** @class */ (function () {
                     text = text + "<p><b>" + orgGroupArray[i].organization.display_name + "</b>  <button id='CollapseButton' name='" + orgGroupArray[i].organization.display_name + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.collapseOrg(name)'>-</button></p>";
 
                     for (let j = 0; j < orgGroupArray[i].datasetArray.length; j++) {
-                        var title=orgGroupArray[i].datasetArray[j].title;
-                        if(title.length>45){
-                            title=title.substring(0,43);
-                            title=title+"...";
+                        var title = orgGroupArray[i].datasetArray[j].title;
+                        if (title.length > 45) {
+                            title = title.substring(0, 43);
+                            title = title + "...";
                             console.log(title);
                         }
                         if (cesiumViewer.entities.getById(orgGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(orgGroupArray[i].datasetArray[j].title).show == true) {
-                            text = text + "<p>" + "<button id='AddButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;<button class='link' id='title' name='"+orgGroupArray[i].datasetArray[j].id+"' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='"+orgGroupArray[i].datasetArray[j].title+"'>" + title + "</button><button id='InfoButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-18'>info</span></button></p>";
+                            text = text + "<p>" + "<button id='AddButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;<button class='link' id='title' name='" + orgGroupArray[i].datasetArray[j].id + "' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='" + orgGroupArray[i].datasetArray[j].title + "'>" + title + "</button><button id='InfoButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-18'>info</span></button></p>";
                         } else {
-                            text = text + "<p>" + "<button id='AddButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;<button class='link' id='title' name='"+orgGroupArray[i].datasetArray[j].id+"' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='"+orgGroupArray[i].datasetArray[j].title+"'>" + title + "</button><button id='InfoButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-18'>info</span></button></p>";
+                            text = text + "<p>" + "<button id='AddButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;<button class='link' id='title' name='" + orgGroupArray[i].datasetArray[j].id + "' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='" + orgGroupArray[i].datasetArray[j].title + "'>" + title + "</button><button id='InfoButton' name='" + orgGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-18'>info</span></button></p>";
                         }
                     }
                 } else {
@@ -1018,16 +1087,16 @@ var CKANRequest = /** @class */ (function () {
                 if (mainGroupArray[i].expanded) {
                     text = text + "<p><b>" + mainGroupArray[i].name + "</b>  <button id='CollapseButton' name='" + mainGroupArray[i].name + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.collapseGroup(name)'>-</button></p>";
                     for (let j = 0; j < mainGroupArray[i].datasetArray.length; j++) {
-                        var title=mainGroupArray[i].datasetArray[j].title;
-                        if(title.length>45){
-                            title=title.substring(0,43);
-                            title=title+"...";
+                        var title = mainGroupArray[i].datasetArray[j].title;
+                        if (title.length > 45) {
+                            title = title.substring(0, 43);
+                            title = title + "...";
                             console.log(title);
                         }
                         if (cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title) != undefined && cesiumViewer.entities.getById(mainGroupArray[i].datasetArray[j].title).show == true) {
-                            text = text + "<p>" + "<button id='AddButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;<button class='link' id='title' name='" + mainGroupArray[i].datasetArray[j].id+"' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='"+mainGroupArray[i].datasetArray[j].title+"'>"+ title + "</button><button id='InfoButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-16'>info</span></button></p>";
+                            text = text + "<p>" + "<button id='AddButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box</span></button>&emsp;<button class='link' id='title' name='" + mainGroupArray[i].datasetArray[j].id + "' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='" + mainGroupArray[i].datasetArray[j].title + "'>" + title + "</button><button id='InfoButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-16'>info</span></button></p>";
                         } else {
-                            text = text + "<p>" + "<button id='AddButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;<button class='link' id='title' name='" + mainGroupArray[i].datasetArray[j].id+"' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='"+mainGroupArray[i].datasetArray[j].title+"'>" + title + "</button><button id='InfoButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-16'>info</span></button></p>";
+                            text = text + "<p>" + "<button id='AddButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.addToMap(name)'><span class='material-icons md-12'>check_box_outline_blank</span></button>&emsp;<button class='link' id='title' name='" + mainGroupArray[i].datasetArray[j].id + "' onClick='CKANRequest.prototype.zoomOnEntry(name)' title='" + mainGroupArray[i].datasetArray[j].title + "'>" + title + "</button><button id='InfoButton' name='" + mainGroupArray[i].datasetArray[j].id + "' type='button'  class='cesium-button' onclick='CKANRequest.prototype.showInfo(name)'><span class='material-icons md-16'>info</span></button></p>";
                         }
                     }
                 } else {
@@ -1348,13 +1417,19 @@ var CKANRequest = /** @class */ (function () {
     }
     CKANRequest.prototype.showInfo = async function (id) {
         var entry = CKANRequest.prototype.getDataset(id);
-        
+
         var groupstring = ""; // parse groupArray
         for (let index = 0; index < entry.groups.length; index++) {
             groupstring = groupstring + entry.groups[index].display_name + ", ";
         }
         // Remove last comma
         groupstring = groupstring.substring(0, groupstring.length - 2);
+        var tagstring = ""; // parse tagArray
+        for (let index = 0; index < entry.tags.length; index++) {
+            tagstring = tagstring + entry.tags[index].display_name + ", ";
+        }
+        // Remove last comma
+        tagstring = tagstring.substring(0, tagstring.length - 2);
 
         var resourcesString = '';
         for (let index = 0; index < entry.resources.length; index++) {
@@ -1480,23 +1555,51 @@ var CKANRequest = /** @class */ (function () {
             "<tr><th>Last Modified</th><td>" +
             entry.metadata_modified +
             "</td></tr>" +
+            "<tr><th>Begin Collection Date</th><td>" +
+            entry.begin_collection_date +
+            "</td></tr>" +
+            "<tr><th>End Collection Date</th><td>" +
+            entry.end_collection_date +
+            "</td></tr>" +
+            "<tr><th>Name</th><td>" +
+            entry.name +
+            "</td></tr>" +
+            "<tr><th>Creator User ID</th><td>" +
+            entry.creator_user_id +
+            "</td></tr>" +
+            "<tr><th>License ID / License Title</th><td>" +
+            entry.license_id + " / " + entry.license_title +
+            "</td></tr>" +
+            "<tr><th>Revision ID</th><td>" +
+            entry.revision_id +
+            "</td></tr>" +
+            "<tr><th>Tags</th><td>" +
+            tagstring +
+            "</td></tr>" +
+            "<tr><th>Version</th><td>" +
+            entry.version +
+            "</td></tr>" +
             "<tr><th>Notes</th><td>" +
             entry.notes +
             "</td></tr>" +
             "</tbody></table>";
         document.getElementById("dataTable").innerHTML = entityDescription;
-        document.getElementById("MetadataTitle").innerHTML=entry.title;
+        document.getElementById("MetadataTitle").innerHTML = entry.title;
         document.getElementById("MetadataTable").style.display = "block";
     }
     CKANRequest.prototype.closeMetadataWindow = function () {
         document.getElementById("MetadataTable").style.display = "none";
     }
-    CKANRequest.prototype.zoomOnEntry=function(id){
-        var entry= CKANRequest.prototype.getDataset(id);
-        if(cesiumViewer.entities.getById(entry.title)!=undefined&&cesiumViewer.entities.getById(entry.title).show==true){
+    CKANRequest.prototype.zoomOnEntry = function (id) {
+        var entry = CKANRequest.prototype.getDataset(id);
+        if (cesiumViewer.entities.getById(entry.title) != undefined && cesiumViewer.entities.getById(entry.title).show == true) {
             cesiumViewer.flyTo(cesiumViewer.entities.getById(entry.title));
         }
-        
+        if (cesiumViewer.entities.getById(entry.title)._children.length >= 2) {
+            cesiumViewer.flyTo(cesiumViewer.entities.getById(entry.title)._children[0]);
+        }
+        console.log(cesiumViewer.entities.getById(entry.title));
+
     }
     return CKANRequest;
 }());
