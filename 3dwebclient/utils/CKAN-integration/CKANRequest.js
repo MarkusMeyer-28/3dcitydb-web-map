@@ -1,7 +1,7 @@
 var CKANRequest = /** @class */ (function () {
-    var start;
+    var start; //for runtime measurements
     var time;
-    var register;
+    var register; //always pointing to the curreent grouping register which is either mainGroupArray or orgGroupArray
     var mainGroupArray = [];
     var orgGroupArray = [];
     var setUp = false;
@@ -17,20 +17,23 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.startCKANExtension = function () {
+        //Open the User interface to start a Request to a CKAN Server
         document.getElementById("CKAN_StartButton").innerHTML = '<span class="material-icons md-18" style="filter: none;">extension_off</span>';
         document.getElementById("CKAN_StartButton").onclick = function () { CKANRequest.prototype.closeCKANExtension() };
         document.getElementById("CKAN_UI").style.display = "block";
 
     }
     CKANRequest.prototype.closeCKANExtension = function () {
+        //Close the User interface to start a Request to a CKAN Server
         document.getElementById("CKAN_StartButton").innerHTML = '<span class="material-icons md-18" style="filter: none;">extension</span>';
         document.getElementById("CKAN_StartButton").onclick = function () { CKANRequest.prototype.startCKANExtension() };
         document.getElementById("CKAN_UI").style.display = "none";
 
     }
     CKANRequest.prototype.setUp = async function () {
+        //set up pre settings
         //reset registries
-        start = performance.now();
+        //start = performance.now();
         mainGroupArray = [];
         orgGroupArray = [];
         //make all entities invisible
@@ -43,7 +46,7 @@ var CKANRequest = /** @class */ (function () {
             }
 
         }
-        entities.show = !entities.show;
+        
 
         document.getElementById("CKAN_Results").innerHTML = "<b> Loading data...</b>";
         document.getElementById("CKAN_Results").style.display = "block";
@@ -95,7 +98,7 @@ var CKANRequest = /** @class */ (function () {
             setUp = true;
         }
 
-        CKANRequest.prototype.getDatasets();
+        CKANRequest.prototype.getDatasets();// Start the communication to the CKAN API
 
     }
     CKANRequest.prototype.getDatasets = async function () {
@@ -126,6 +129,7 @@ var CKANRequest = /** @class */ (function () {
             searchedEntries = await CKANRequest.prototype.searchCatalog();
         }
 
+        //Build URL for Request using a spatial filter
         var url = document.getElementById('urlCKAN').value;
         var packageUrl = url + "/api\/action/package_search?ext_bbox=" + west + "%2C" + south + "%2C" + east + "%2C" + north + "&sort=title desc&rows=99999999999999999";
 
@@ -134,10 +138,10 @@ var CKANRequest = /** @class */ (function () {
         var groups;
         var organizations;
         mainGroupArray = [];
-        document.getElementById("CKAN_Results").innerHTML = "Querying Groups...";
-        groups = await CKANRequest.prototype.getMainGroups(url);
-        document.getElementById("CKAN_Results").innerHTML = "Querying Organizations...";
-        organizations = await CKANRequest.prototype.getOrganizations(url);
+        document.getElementById("CKAN_Results").innerHTML = "Querying Groups..."; //Information for user
+        groups = await CKANRequest.prototype.getMainGroups(url);//Main Groups of Catalog are queried
+        document.getElementById("CKAN_Results").innerHTML = "Querying Organizations...";//Information for user
+        organizations = await CKANRequest.prototype.getOrganizations(url);//organizations of catalog are queried
         //console.log(organizations);
         //all datasets matching the url query
         var datasets = fetch(packageUrl).then((resp) => resp.json()).then(function (data) {
@@ -161,7 +165,7 @@ var CKANRequest = /** @class */ (function () {
 
 
         // get full representations of the datasets
-        var unfilteredRes = [];
+        var unfilteredRes = []; //unfiltered Result
         for (var index = 0; index < data.results.length; index++) {
             document.getElementById("CKAN_Results").innerHTML = "Loaded " + index + " / " + data.results.length + " datasets";
             var tempUrl = url + "/api/action/package_show?id=" + data.results[index].id;
@@ -184,7 +188,7 @@ var CKANRequest = /** @class */ (function () {
         if (searchTerm != "") {
             unfilteredRes = CKANRequest.prototype.filterSearchTerm(unfilteredRes, searchedEntries);
         }
-        results = unfilteredRes;
+        results = unfilteredRes;//results are now filtered
         //console.log(tempResponseData.result.results.length);
         console.log(results);
 
@@ -219,8 +223,8 @@ var CKANRequest = /** @class */ (function () {
                 var tempOrg = new OrgGroup(organizations[i], tempDatasetArrOrg);
                 orgGroupArray.push(tempOrg);
             }
-            var addedDataArray = []
-            var addedGroup = new MainGroup("Extra Datasets", addedDataArray)
+            var addedDataArray = [];
+            var addedGroup = new MainGroup("Extra Datasets", addedDataArray);//for additional Datasets that are loaded but are not matching the set filters
             mainGroupArray.push(addedGroup);
             var newOrga = Object;
 
@@ -241,12 +245,13 @@ var CKANRequest = /** @class */ (function () {
         }
         await setGroups().then(console.log(mainGroupArray));
         console.log(orgGroupArray);
-        CKANRequest.prototype.refreshResultWindow();
+        CKANRequest.prototype.refreshResultWindow(); //Fill result window with results
         //visualize spatial filter
-        CKANRequest.prototype.visualizeSpatialFilter(west, north, east, south);
+        CKANRequest.prototype.visualizeSpatialFilter(west, north, east, south);//generate an entity displaying the bounding box used for the spatial filter
 
     };
     CKANRequest.prototype.filterTemporal = function (array, startdate, enddate) {
+        // go through array and filter out non matching entries
         var filteredArray = [];
         for (let index = 0; index < array.length; index++) {
             const res = array[index];
@@ -257,6 +262,7 @@ var CKANRequest = /** @class */ (function () {
         return filteredArray;
     }
     CKANRequest.prototype.filterSearchTerm = function (array, searchedEntries) {
+        //go through unfiltered results and compare to searched entries
         var filteredArray = [];
         for (let index = 0; index < array.length; index++) {
             const res = array[index];
@@ -368,13 +374,13 @@ var CKANRequest = /** @class */ (function () {
         document.getElementById("MaxCKANButton").style.display = "none";
     };
     CKANRequest.prototype.addToMap = async function (id) {
+        //start=performance.now();
         // Add spatial information as entities to the Cesium Map, or remove it 
         var entry = CKANRequest.prototype.getDataset(id);
         //console.log(dataset);
         var entities = cesiumViewer.entities;
         entities.show = true;
-        //console.log(document.getElementsByName(name)[0].innerHTML);
-        //console.log('<img src="utils/CKAN-integration/images/visibility_off_white_18dp.svg">')
+       
         if (document.getElementsByName(id)[0].innerHTML == '<span class="material-icons md-12">check_box_outline_blank</span>') {
             //split name to get information on which dataset should be added
             //var chars = name.split("/");
@@ -599,6 +605,7 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.searchCatalog = async function () {
+        //Search in Catalog using API function package_search
         var searchTerm = document.getElementById("searchTerm").value;
         packageUrl = document.getElementById('urlCKAN').value + "/api/action/package_search?q=" + searchTerm;
         var datasets = fetch(packageUrl).then((resp) => resp.json()).then(function (data) {
@@ -613,6 +620,7 @@ var CKANRequest = /** @class */ (function () {
 
     }
     CKANRequest.prototype.zoomOnEntities = function () {
+        //optimal zoom to view all visible entities
         cesiumViewer.flyTo(cesiumViewer.entities);
     }
     CKANRequest.prototype.compareTime = function (startdate, enddate, collectionStart, collectionEnd) {
@@ -712,7 +720,7 @@ var CKANRequest = /** @class */ (function () {
             else if (connData.resources[index].format == "GeoJSON") {
                 resourcesString = resourcesString + "<button id='WMSButton' name='" + connData.resources[index].url + ";" + connData.resources[index].name + ";" + connData.resources[index].description + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addGeoJSON(name)'>GeoJSON: " + connData.resources[index].name + "</button>"
             }
-            else if (entry.resources[index].format == "KML") {
+            else if (connData.resources[index].format == "KML") {
                 resourcesString = resourcesString + "<button id='KMLButton' name='" + connData.resources[index].id + "/" + index + "' type='button' class='cesium-button' onclick='CKANRequest.prototype.addKML(name)'>KML</button>" +
                     "</td></tr>";
             }
@@ -911,15 +919,9 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.closeConnectionWindow = function () {
         document.getElementById("ConnectionInfo").style.display = "none";
     }
-    CKANRequest.prototype.spatialPlusMinus = function () {
-        if (document.getElementById("ConnectionSpatialAdd").innerHTML == '<span class="material-icons md-18">check_box</span>') {
-            document.getElementById("ConnectionSpatialAdd").innerHTML = '<span class="material-icons md-18">check_box_outline_blank</span>';
-        }
-        else {
-            document.getElementById("ConnectionSpatialAdd").innerHTML = '<span class="material-icons md-18">check_box</span>';
-        }
-    }
+    
     CKANRequest.prototype.addGeoJSON = async function (resource) {
+        //solution for GeoJSON format
         var data = resource.split(";"); //resource format: url;name;description
         var url = data[0];
         var name = data[1];
@@ -1021,11 +1023,13 @@ var CKANRequest = /** @class */ (function () {
 
             entityArray[0]._id = dataset.title;
             cesiumViewer.entities.add(entityArray[0]);
-        }
-
+        }/*
+        time = performance.now();
+        console.log("Time: " + (time - start) + " ms.")*/
         //cesiumViewer.flyTo(cesiumViewer.entities.getById(dataset.title));
     }
     CKANRequest.prototype.refreshResultWindow = function () {
+        //refresh the result window to show current result set grouped with information on if the entry is visiualized
         var selector = document.getElementById("GroupBySelector").value;
         //console.log(selector);
         if (selector == "MainGroup") {
@@ -1036,8 +1040,8 @@ var CKANRequest = /** @class */ (function () {
             CKANRequest.prototype.refreshResultWindowOrganization();
             register = orgGroupArray;
         }
-        time = performance.now();
-        console.log("Time: " + (time - start) + " ms.")
+        //time = performance.now();
+        //console.log("Time: " + (time - start) + " ms.")
 
     }
     CKANRequest.prototype.refreshResultWindowOrganization = function () {
@@ -1148,6 +1152,7 @@ var CKANRequest = /** @class */ (function () {
     }
 
     CKANRequest.prototype.addKML = async function (name) {
+        //add KML layer using Citydb functions
         var data = name.split("/");
         var entry = this.getDataset(data[0]);
         var resource = entry.resources[data[1]];
@@ -1163,6 +1168,7 @@ var CKANRequest = /** @class */ (function () {
         loadLayerGroup(_layers);
     }
     CKANRequest.prototype.addWMS = async function (name) {
+        //build layer selector window by calling getCapabilities operation
         var data = name.split("/");
         var entry = this.getDataset(data[0]);
         var url = entry.resources[data[1]].url;
@@ -1249,6 +1255,7 @@ var CKANRequest = /** @class */ (function () {
     }
     CKANRequest.prototype.wmsLayerToMap = function () {
         //the selected layer of the selector is added to the wmsModel
+        //start=performance.now()
         var selLayer = document.getElementById("layerSelector");
         var layer = selLayer.options[selLayer.selectedIndex].value;
         wmsModel.layers = layer;
@@ -1256,7 +1263,8 @@ var CKANRequest = /** @class */ (function () {
         CKANRequest.prototype.addWebMapServiceProvider(wmsModel);
         document.getElementById("LayerWindow").style.display = "none";
 
-
+        //time = performance.now();
+        console.log("Time: " + (time - start) + " ms.")
 
     }
     CKANRequest.prototype.addWebMapServiceProvider = function (wmsViewModel) {
@@ -1354,7 +1362,7 @@ var CKANRequest = /** @class */ (function () {
             }, 10);
         }
     }
-    CKANRequest.prototype.changeAlpha = function (index, value) {
+    CKANRequest.prototype.changeAlpha = function (index, value) { //change the opacity of a layer
         viewModel.layers[index].alpha = value;
     }
     CKANRequest.prototype.closeLoadedLayersWindow = function () {
@@ -1374,7 +1382,7 @@ var CKANRequest = /** @class */ (function () {
             document.getElementById("GroupByWindow").style.display = "block";
         }
     }
-    CKANRequest.prototype.getDataset = function (id) {
+    CKANRequest.prototype.getDataset = function (id) {//get a dataset of the resultset using its id by calling the getDataset function of the registerr group classes
         for (let index = 0; index < register.length; index++) {
             const element = register[index];
             var dataset = element.getDataset(id);
@@ -1415,7 +1423,7 @@ var CKANRequest = /** @class */ (function () {
 
 
     }
-    CKANRequest.prototype.showInfo = async function (id) {
+    CKANRequest.prototype.showInfo = async function (id) {// open a window displaying the metadata
         var entry = CKANRequest.prototype.getDataset(id);
 
         var groupstring = ""; // parse groupArray
@@ -1590,7 +1598,7 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.closeMetadataWindow = function () {
         document.getElementById("MetadataTable").style.display = "none";
     }
-    CKANRequest.prototype.zoomOnEntry = function (id) {
+    CKANRequest.prototype.zoomOnEntry = function (id) {//zoom on a specific entry
         var entry = CKANRequest.prototype.getDataset(id);
         if (cesiumViewer.entities.getById(entry.title) != undefined && cesiumViewer.entities.getById(entry.title).show == true) {
             cesiumViewer.flyTo(cesiumViewer.entities.getById(entry.title));
