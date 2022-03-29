@@ -33,7 +33,7 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.setUp = async function () {
         //set up pre settings
         //reset registries
-        //start = performance.now();
+        start = performance.now();
         mainGroupArray = [];
         orgGroupArray = [];
         //make all entities invisible
@@ -46,9 +46,9 @@ var CKANRequest = /** @class */ (function () {
             }
 
         }
-        
 
-        document.getElementById("CKAN_Results").innerHTML = "<b> Loading data...</b>";
+
+        document.getElementById("CKAN_Results").innerHTML = "<br><b> Loading data...</b></br>";
         document.getElementById("CKAN_Results").style.display = "block";
         document.getElementById("ResultWindow").style.display = "block";
 
@@ -138,9 +138,9 @@ var CKANRequest = /** @class */ (function () {
         var groups;
         var organizations;
         mainGroupArray = [];
-        document.getElementById("CKAN_Results").innerHTML = "Querying Groups..."; //Information for user
+        document.getElementById("CKAN_Results").innerHTML += "<br>Querying Groups...</br>"; //Information for user
         groups = await CKANRequest.prototype.getMainGroups(url);//Main Groups of Catalog are queried
-        document.getElementById("CKAN_Results").innerHTML = "Querying Organizations...";//Information for user
+        document.getElementById("CKAN_Results").innerHTML += "<br>Querying Organizations...</br>";//Information for user
         organizations = await CKANRequest.prototype.getOrganizations(url);//organizations of catalog are queried
         //console.log(organizations);
         //all datasets matching the url query
@@ -150,10 +150,12 @@ var CKANRequest = /** @class */ (function () {
             .catch(function (error) {
                 console.log(error);
             });
+        
         //result= parseResponse(responseData);
         //console.log(responseData.result.results);
         var data = await datasets;
         var size = data.results.length;
+        document.getElementById("CKAN_Results").innerHTML += "Found " + size + " catalog entries";
         // if no data is available
         if (size == 0) {
             document.getElementById("CKAN_Results").innerHTML = "<b> No data available</b>";
@@ -165,7 +167,9 @@ var CKANRequest = /** @class */ (function () {
 
 
         // get full representations of the datasets
-        var unfilteredRes = []; //unfiltered Result
+        console.log(data.results);
+        var unfilteredRes = data.results;//[]; //unfiltered Result
+        /*
         for (var index = 0; index < data.results.length; index++) {
             document.getElementById("CKAN_Results").innerHTML = "Loaded " + index + " / " + data.results.length + " datasets";
             var tempUrl = url + "/api/action/package_show?id=" + data.results[index].id;
@@ -179,14 +183,14 @@ var CKANRequest = /** @class */ (function () {
             var res = await result;
             //console.log(responseData.result);
             unfilteredRes.push(res);
-            //control if date is inside the set input temporal parameters
+            
 
-        }
+        }*/
         if (startdate != "" && enddate != "") {
-            unfilteredRes = CKANRequest.prototype.filterTemporal(unfilteredRes, startdate, enddate);
+            unfilteredRes = CKANRequest.prototype.filterTemporal(unfilteredRes, startdate, enddate);//control if date is inside the set input temporal parameters
         }
         if (searchTerm != "") {
-            unfilteredRes = CKANRequest.prototype.filterSearchTerm(unfilteredRes, searchedEntries);
+            unfilteredRes = CKANRequest.prototype.filterSearchTerm(unfilteredRes, searchedEntries);//control if date is metching the set input search parameters
         }
         results = unfilteredRes;//results are now filtered
         //console.log(tempResponseData.result.results.length);
@@ -243,6 +247,7 @@ var CKANRequest = /** @class */ (function () {
 
 
         }
+        document.getElementById("CKAN_Results").innerHTML = "Grouping...";
         await setGroups().then(console.log(mainGroupArray));
         console.log(orgGroupArray);
         CKANRequest.prototype.refreshResultWindow(); //Fill result window with results
@@ -380,7 +385,7 @@ var CKANRequest = /** @class */ (function () {
         //console.log(dataset);
         var entities = cesiumViewer.entities;
         entities.show = true;
-       
+
         if (document.getElementsByName(id)[0].innerHTML == '<span class="material-icons md-12">check_box_outline_blank</span>') {
             //split name to get information on which dataset should be added
             //var chars = name.split("/");
@@ -919,7 +924,7 @@ var CKANRequest = /** @class */ (function () {
     CKANRequest.prototype.closeConnectionWindow = function () {
         document.getElementById("ConnectionInfo").style.display = "none";
     }
-    
+
     CKANRequest.prototype.addGeoJSON = async function (resource) {
         //solution for GeoJSON format
         var data = resource.split(";"); //resource format: url;name;description
@@ -1040,8 +1045,8 @@ var CKANRequest = /** @class */ (function () {
             CKANRequest.prototype.refreshResultWindowOrganization();
             register = orgGroupArray;
         }
-        //time = performance.now();
-        //console.log("Time: " + (time - start) + " ms.")
+        time = performance.now();
+        console.log("Time: " + (time - start) + " ms.")
 
     }
     CKANRequest.prototype.refreshResultWindowOrganization = function () {
@@ -1591,8 +1596,15 @@ var CKANRequest = /** @class */ (function () {
             entry.notes +
             "</td></tr>" +
             "</tbody></table>";
+
+        var title = entry.title;
+        if (title.length > 45) {
+            title = title.substring(0, 43);
+            title = title + "...";
+            //console.log(title);
+        }
         document.getElementById("dataTable").innerHTML = entityDescription;
-        document.getElementById("MetadataTitle").innerHTML = entry.title;
+        document.getElementById("MetadataTitle").innerHTML = title;
         document.getElementById("MetadataTable").style.display = "block";
     }
     CKANRequest.prototype.closeMetadataWindow = function () {
